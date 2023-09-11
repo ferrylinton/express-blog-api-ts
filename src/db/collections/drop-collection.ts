@@ -1,6 +1,7 @@
 import { MONGODB_DATABASE } from "../../configs/env-constant";
 import { mongoClient } from "../../configs/mongodb";
 import { AUTHORITY_COLLECTION } from "../schemas/authority-schema";
+import { IMAGE_FILES_CHUNKS, IMAGE_FILES_COLLECTION } from "../schemas/image-bucket-schema";
 import { TODO_COLLECTION } from "../schemas/todo-schema";
 import { USER_COLLECTION } from "../schemas/user-schema";
 import { WHITELIST_COLLECTION } from "../schemas/whitelist-schema";
@@ -37,6 +38,14 @@ import { WHITELIST_COLLECTION } from "../schemas/whitelist-schema";
 
         if (collectionNames.includes(USER_COLLECTION)) {
             await db.dropCollection(USER_COLLECTION);
+        }
+
+        if (collectionNames.includes(IMAGE_FILES_COLLECTION)) {
+            await db.dropCollection(IMAGE_FILES_COLLECTION);
+        }
+
+        if (collectionNames.includes(IMAGE_FILES_CHUNKS)) {
+            await db.dropCollection(IMAGE_FILES_CHUNKS);
         }
 
         // Close connection

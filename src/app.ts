@@ -8,6 +8,7 @@ import { notFoundHandler } from './middleware/not-found-handler';
 import { restErrorHandler } from './middleware/rest-error-handler';
 import setRoutes from './routers';
 import { clientInfoHandler } from './middleware/client-info-handler';
+import setLocales from './configs/i18n';
 
 
 const app: Express = express();
@@ -21,6 +22,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(helmet());
 app.use(authHandler);
 
+setLocales(app);
 // Routes
 setRoutes(app);
 

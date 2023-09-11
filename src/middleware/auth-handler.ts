@@ -2,18 +2,26 @@ import { NextFunction, Request, Response } from 'express';
 import * as authService from '../services/auth-service';
 import * as redisService from '../services/redis-service';
 
-const PUBLIC_API = ['/', '/auth/token']
+const PUBLIC_API_ALL_METHOD = ['/', '/auth/token']
+const PUBLIC_API_GET_METHOD = ['/api/images']
 
 export const authHandler = async (req: Request, res: Response, next: NextFunction) => {
-    if (PUBLIC_API.indexOf(req.path) === -1) {
+    
+    if (PUBLIC_API_ALL_METHOD.indexOf(req.path) === 1 ||
+        (req.method === 'GET' && checkIfStringStartsWith(req.path, PUBLIC_API_GET_METHOD))) {
+
+        // Public API
+        next();
+
+    } else {
         const token = authService.getTokenFromRequest(req);
 
         if (token) {
             try {
                 const authDataString = await redisService.findToken(token);
-                
+
                 if (authDataString) {
-                    const authData : AuthData = JSON.parse(authDataString as string);
+                    const authData: AuthData = JSON.parse(authDataString as string);
                     console.log(authData);
                     if (authData.username) {
                         req.auth = authData;
@@ -35,7 +43,9 @@ export const authHandler = async (req: Request, res: Response, next: NextFunctio
         } else {
             return res.status(401).json({ message: "Token is required" });
         }
-    } else {
-        next();
     }
 };
+
+const checkIfStringStartsWith = (str: string, substrs: string[]) => {
+    return substrs.some(substr => str.toLowerCase().startsWith(substr.toLowerCase()));
+}

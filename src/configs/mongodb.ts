@@ -1,4 +1,4 @@
-import { Db, Document, MongoClient, MongoClientOptions } from 'mongodb';
+import { Db, Document, MongoClient, MongoClientOptions, TransactionOptions } from 'mongodb';
 import { MONGODB_AUTH_SOURCE, MONGODB_DATABASE, MONGODB_PASSWORD, MONGODB_URL, MONGODB_USERNAME } from './env-constant';
 import { logger } from './winston';
 
@@ -12,7 +12,7 @@ const mongoClientOptions: MongoClientOptions = {
     }
 };
 
-export const transactionOptions = {
+export const transactionOptions: TransactionOptions = {
     readConcern: { level: 'snapshot' },
     writeConcern: { w: 'majority' },
     readPreference: 'primary'
