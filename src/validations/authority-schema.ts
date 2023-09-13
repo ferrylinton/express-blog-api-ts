@@ -1,4 +1,4 @@
-import { TypeOf, object, string } from 'zod';
+import { object, string } from 'zod';
 
 export const CreateAuthoritySchema = object({
     

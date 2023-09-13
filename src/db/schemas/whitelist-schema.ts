@@ -18,12 +18,26 @@ export const createWhitelistSchema = async (db: Db) => {
                             bsonType: "string",
                             description: "Must be a string and unique"
                         },
+                        description: {
+                            bsonType: "string",
+                            minLength: 2,
+                            maxLength: 100,
+                            description: "Must be a string and unique"
+                        },
+                        createdBy: {
+                            bsonType: "string"
+                        },
                         createdAt: {
                             bsonType: "date",
-                            description: "Must be a date"
+                        },
+                        updatedBy: {
+                            bsonType: "string"
+                        },
+                        updatedAt: {
+                            bsonType: "date"
                         }
                     },
-                    required: ["ip", "createdAt"],
+                    required: ["ip", "description", "createdAt", "createdBy"],
                 },
             },
             validationLevel: "strict",

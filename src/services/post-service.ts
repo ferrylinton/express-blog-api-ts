@@ -1,183 +1,70 @@
-import PostModel from "@/models/post-model";
-import TagModel from "@/models/tag-model";
-import { PostDocumentType, PostType } from "@/types/post-type";
-import { RoleDocumentType } from "@/types/role-type";
-import { TagType } from "@/types/tag-type";
-import connect from "@/utils/mongodb";
-import { PER_PAGE, getPageParams, getTotalPage } from "@/utils/page";
-import { CreatePostType } from "@/validations/post-schema";
-import { isObjectIdOrHexString } from "mongoose";
+import { DeleteResult, InsertOneResult, ObjectId, UpdateResult } from "mongodb";
+import { getCollection } from "../configs/mongodb";
+import { POST_COLLECTION } from "../db/schemas/post-schema";
+import { BadRequestError } from "../errors/badrequest-error";
+import { Create, Update, WithAudit } from "../types/common-type";
+import { Post } from "../types/post-type";
 
 
-export const findAllJson = async (): Promise<Array<PostType>> => {
-    await connect();
-    const posts: Array<PostDocumentType> = await PostModel.find();
-    return posts.map(doc => {
-        return JSON.parse(JSON.stringify(doc.toJSON()))
-    })
+
+export const find = async (): Promise<Array<WithAudit<Post>>> => {
+    const postCollection = await getCollection<WithAudit<Post>>(POST_COLLECTION);
+    const cursor = postCollection.find().sort({ 'name': -1 });
+
+    const posts: Array<WithAudit<Post>> = [];
+    for await (const doc of cursor) {
+        const { _id, ...rest } = doc;
+        posts.push({ id: _id, ...rest });
+    }
+
+    return posts;
 }
 
-export const findByIdJson = async (id: string): Promise<PostType | null> => {
-    const post = await findById(id);
+export const findById = async (id: string): Promise<WithAudit<Post> | null> => {
+    if (!ObjectId.isValid(id)) {
+        return null;
+    }
+
+    const postCollection = await getCollection<WithAudit<Post>>(POST_COLLECTION);
+    const post = await postCollection.findOne({ _id: new ObjectId(id) });
 
     if (post) {
-        return JSON.parse(JSON.stringify(post.toJSON()));
-    } else {
-        return null;
+        const { _id, ...rest } = post;
+        return { id: _id, ...rest };
     }
+
+    return null;
 }
 
-export const findBySlugJson = async (slug: string): Promise<PostType | null> => {
-    await connect();
-    const post = await PostModel.findOne({ slug });
+export const create = async (post: Create<Post>): Promise<WithAudit<Post>> => {
+    const postCollection = await getCollection<WithAudit<Post>>(POST_COLLECTION);
+    const current = await postCollection.findOne({ title: post.title });
 
-    if (post) {
-        return JSON.parse(JSON.stringify(post.toJSON()));
-    } else {
-        return null;
+    if (current) {
+        throw new BadRequestError(400, `Post ['${post.title}'] is already exist`);
     }
+
+    const insertOneResult: InsertOneResult<WithAudit<Post>> = await postCollection.insertOne(post);
+    const { _id, ...rest } = post;
+    return { id: insertOneResult.insertedId, ...rest };
 }
 
-export const find = async (pageParams: PageParamsType): Promise<Pageable<PostDocumentType>> => {
-    await connect();
-    const { page, keyword } = getPageParams(pageParams);
-    const listQuery = PostModel.find();
-    const countQuery = PostModel.count();
-
-    if (keyword.length > 0) {
-        const regex: RegExp = RegExp(keyword as string, 'i');
-        listQuery.regex("name", regex);
-        countQuery.regex("name", regex);
-    }
-
-    listQuery
-        .populate({
-            path: 'tags',
-            select: 'name',
-        })
-        .select('-content')
-        .skip(((page - 1) * PER_PAGE))
-        .limit(PER_PAGE).sort({ name: 1 })
-        .allowDiskUse(true);
-
-    const [items, total] = await Promise.all([
-        listQuery.exec().then(docs => {
-            return docs.map(doc => {
-                const json = doc.toJSON({ virtuals: false });
-                json.tags = doc.tags.map((tag: any) => tag.name);
-                return json;
-            })
-        }),
-        countQuery.exec()
-    ]);
-
-    return {
-        keyword,
-        items,
-        total,
-        page,
-        totalPage: getTotalPage(total),
-        perPage: PER_PAGE
-    };
+export const update = async ({ _id, ...rest }: Update<Post>): Promise<UpdateResult> => {
+    const postCollection = await getCollection<Post>(POST_COLLECTION);
+    return await postCollection.updateOne({ _id }, { $set: rest });
 }
 
-export const findByTag = async (pageParams: PageTagParamsType): Promise<Pageable<PostDocumentType> | null> => {
-    await connect();
-
-    if (!isObjectIdOrHexString(pageParams.id)) {
-        return null;
-    }
-
-    const tag = await TagModel.findById(pageParams.id);
-
-    if (!tag) {
-        return null;
-    }
-
-    const page = (pageParams.page && typeof pageParams.page === 'string') ? parseInt(pageParams.page as string) : 1;
-    const listQuery = PostModel.find({ tags: pageParams.id });
-    const countQuery = PostModel.count({ tags: pageParams.id });
-
-    listQuery
-        .populate({
-            path: 'tags',
-            select: 'name',
-        })
-        .select('-content')
-        .skip(((page - 1) * PER_PAGE))
-        .limit(PER_PAGE).sort({ name: 1 })
-        .allowDiskUse(true);
-
-    const [items, total] = await Promise.all([
-        listQuery.exec().then(docs => {
-            return docs.map(doc => {
-                const json = doc.toJSON({ virtuals: false });
-                json.tags = doc.tags.map((tag: any) => tag.name);
-                return json;
-            })
-        }),
-        countQuery.exec()
-    ]);
-
-    return {
-        items,
-        total,
-        page,
-        totalPage: getTotalPage(total),
-        perPage: PER_PAGE
-    };
+export const updateByOwner = async (owner: string, { _id, ...rest }: Update<Post>): Promise<UpdateResult> => {
+    const postCollection = await getCollection<Post>(POST_COLLECTION);
+    return await postCollection.updateOne({ owner, _id }, { $set: rest });
 }
 
-export const findById = async (id: string): Promise<any> => {
-    if (!isObjectIdOrHexString(id)) {
-        return null;
-    }
-
-    await connect();
-    return await PostModel.findById(id).populate({ path: 'tags', select: 'name' });
+export const deleteById = async (_id: ObjectId): Promise<DeleteResult> => {
+    const postCollection = await getCollection<Post>(POST_COLLECTION);
+    return await postCollection.deleteOne({ _id });
 }
 
-export const save = async (input: CreatePostType): Promise<PostType> => {
-    await connect();
-
-    const { slug, title, description, content } = input;
-    let tags: TagType[] = [];
-
-    if (input.tags) {
-        tags = await TagModel.find({ name: { "$in": input.tags } });
-        console.log(tags);
-    }
-
-
-    const post = await PostModel.create({ slug, title, description, content, tags });
-
-    return post.toJSON();
-}
-
-export const update = async (id: string, input: CreatePostType): Promise<any> => {
-    await connect();
-    let tags: TagType[] = [];
-    const { slug, title, description, content } = input;
-    const post = await PostModel.findById(id);
-
-    if (post) {
-        if (input.tags) {
-            tags = await TagModel.find({ name: { "$in": input.tags } });
-            post.tags = tags;
-        }
-
-        post.slug = slug;
-        post.title = title;
-        post.description = description;
-        post.content = content;
-        post.save();
-
-        return post;
-    } else {
-        return null;
-    }
-}
-
-export const deleteById = async (id: string) => {
-    return await PostModel.findByIdAndRemove(id);
+export const deleteByOwnerAndId = async (owner: string, _id: ObjectId): Promise<DeleteResult> => {
+    const postCollection = await getCollection<Post>(POST_COLLECTION);
+    return await postCollection.deleteOne({ owner, _id });
 }

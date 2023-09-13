@@ -1,14 +1,14 @@
 import { NextFunction, Request, Response } from 'express';
 import { DeleteResult, ObjectId, UpdateResult } from 'mongodb';
 import { ACCESS_FORBIDDEN, DATA_IS_DELETED, DATA_IS_NOT_FOUND, DATA_IS_UPDATED } from '../configs/message-constant';
-import * as tagService from '../services/tag-service';
-import { CreateTagSchema, UpdateTagSchema } from '../validations/tag-schema';
+import * as postService from '../services/post-service';
+import { CreatePostSchema, UpdatePostSchema } from '../validations/post-schema';
 
 
 export async function find(req: Request, res: Response, next: NextFunction) {
     try {
-        const tags = await tagService.find()
-        res.status(200).send(tags);
+        const posts = await postService.find()
+        res.status(200).send(posts);
     } catch (error) {
         next(error);
     }
@@ -20,10 +20,10 @@ export async function findById(req: Request, res: Response, next: NextFunction) 
             return res.status(404).json({ message: DATA_IS_NOT_FOUND });
         }
 
-        const tag = await tagService.findById(req.params.id);
+        const post = await postService.findById(req.params.id);
 
-        if (tag) {
-            res.status(200).json(tag);
+        if (post) {
+            res.status(200).json(post);
         } else {
             res.status(404).json({ message: DATA_IS_NOT_FOUND });
         }
@@ -34,13 +34,13 @@ export async function findById(req: Request, res: Response, next: NextFunction) 
 
 export async function create(req: Request, res: Response, next: NextFunction) {
     try {
-        const validation = CreateTagSchema.safeParse(req.body);
+        const validation = CreatePostSchema.safeParse(req.body);
 
         if (validation.success) {
             const createdAt = new Date();
             const createdBy = req.auth.username as string;
-            const tag = await tagService.create({ createdBy, createdAt, ...validation.data });
-            res.status(201).json(tag);
+            const post = await postService.create({ createdBy, createdAt, ...validation.data });
+            res.status(201).json(post);
         } else {
             const { fieldErrors: errors } = validation.error.flatten();
             res.status(400).send({ errors });
@@ -59,7 +59,7 @@ export async function update(req: Request, res: Response, next: NextFunction) {
         }
 
         let updateResult: UpdateResult = { acknowledged: false, matchedCount: 0, modifiedCount: 0, upsertedCount: 0, upsertedId: null };
-        const validation = UpdateTagSchema.safeParse(req.body);
+        const validation = UpdatePostSchema.safeParse(req.body);
 
         if (validation.success) {
             const updatedAt = new Date();
@@ -70,9 +70,9 @@ export async function update(req: Request, res: Response, next: NextFunction) {
             if (owner && owner !== updatedBy) {
                 return res.status(403).json({ message: ACCESS_FORBIDDEN });
             } else if (owner) {
-                updateResult = await tagService.updateByOwner(owner, { _id, updatedBy, updatedAt, ...validation.data });
+                updateResult = await postService.updateByOwner(owner, { _id, updatedBy, updatedAt, ...validation.data });
             } else {
-                updateResult = await tagService.update({ _id, updatedBy, updatedAt, ...validation.data });
+                updateResult = await postService.update({ _id, updatedBy, updatedAt, ...validation.data });
             }
 
             updateResult.modifiedCount
@@ -101,9 +101,9 @@ export async function deleteById(req: Request, res: Response, next: NextFunction
         if (owner && owner !== updatedBy) {
             return res.status(403).json({ message: ACCESS_FORBIDDEN });
         } else if (owner) {
-            deleteResult = await tagService.deleteByOwnerAndId(owner, _id);
+            deleteResult = await postService.deleteByOwnerAndId(owner, _id);
         } else {
-            deleteResult = await tagService.deleteById(_id);
+            deleteResult = await postService.deleteById(_id);
         }
 
         deleteResult.deletedCount

@@ -1,9 +1,9 @@
-import { DeleteResult, InsertOneResult, ObjectId, OptionalId, UpdateResult, WithId } from "mongodb";
+import { DeleteResult, InsertOneResult, ObjectId, UpdateResult } from "mongodb";
 import { getCollection } from "../configs/mongodb";
 import { TAG_COLLECTION } from "../db/schemas/tag-schema";
-import { WithAudit, Update, Create } from "../types/common-type";
-import { Tag } from "../types/tag-type";
 import { BadRequestError } from "../errors/badrequest-error";
+import { Create, Update, WithAudit } from "../types/common-type";
+import { Tag } from "../types/tag-type";
 
 
 
@@ -54,11 +54,17 @@ export const update = async ({ _id, ...rest }: Update<Tag>): Promise<UpdateResul
     return await tagCollection.updateOne({ _id }, { $set: rest });
 }
 
-export const deleteById = async (id: string): Promise<DeleteResult> => {
-    if (!ObjectId.isValid(id)) {
-        return { acknowledged: false, deletedCount: 0 };
-    }
-
+export const updateByOwner = async (owner: string, { _id, ...rest }: Update<Tag>): Promise<UpdateResult> => {
     const tagCollection = await getCollection<Tag>(TAG_COLLECTION);
-    return await tagCollection.deleteOne({ _id: new ObjectId(id) });
+    return await tagCollection.updateOne({ owner, _id }, { $set: rest });
+}
+
+export const deleteById = async (_id: ObjectId): Promise<DeleteResult> => {
+    const tagCollection = await getCollection<Tag>(TAG_COLLECTION);
+    return await tagCollection.deleteOne({ _id });
+}
+
+export const deleteByOwnerAndId = async (owner: string, _id: ObjectId): Promise<DeleteResult> => {
+    const tagCollection = await getCollection<Tag>(TAG_COLLECTION);
+    return await tagCollection.deleteOne({ owner, _id });
 }

@@ -1,11 +1,13 @@
-import { ObjectId, WithId } from "mongodb";
+import { DeleteResult, InsertOneResult, ObjectId, UpdateResult } from "mongodb";
 import { getCollection } from "../configs/mongodb";
 import { WHITELIST_COLLECTION } from "../db/schemas/whitelist-schema";
+import { BadRequestError } from "../errors/badrequest-error";
+import { Create, Update, WithAudit } from "../types/common-type";
 
 const whitelistCache = new Set<string>();
 
 export const getWhitelist = async () => {
-    if(whitelistCache.size === 0){
+    if (whitelistCache.size === 0) {
         await reload();
     }
 
@@ -25,62 +27,58 @@ export const reload = async (): Promise<void> => {
     }
 }
 
-export const find = async (): Promise<Whitelist[]> => {
-    const whitelists: Whitelist[] = [];
-    const whitelistsCollection = await getCollection<Whitelist>(WHITELIST_COLLECTION);
-    const cursor = whitelistsCollection.find();
+export const find = async (): Promise<Array<WithAudit<Whitelist>>> => {
+    const whitelistCollection = await getCollection<WithAudit<Whitelist>>(WHITELIST_COLLECTION);
+    const cursor = whitelistCollection.find().sort({ 'code': -1 });
 
-    whitelistCache.clear()
+    const whitelists: Array<WithAudit<Whitelist>> = [];
     for await (const doc of cursor) {
-        const { _id, ip, createdAt } = doc;
-        const id = _id.toHexString();
-        whitelists.push({ id, ip, createdAt });
-        whitelistCache.add(ip)
+        const { _id, ...rest } = doc;
+        whitelists.push({ id: _id, ...rest });
     }
 
     return whitelists;
 }
 
-export const findById = async (_id: ObjectId) => {
-    const whitelistsCollection = await getCollection<Whitelist>(WHITELIST_COLLECTION);
-    const whitelist = await whitelistsCollection.findOne({ _id });
+export const findById = async (id: string): Promise<WithAudit<Whitelist> | null> => {
+    if (!ObjectId.isValid(id)) {
+        return null;
+    }
+
+    const whitelistCollection = await getCollection<WithAudit<Whitelist>>(WHITELIST_COLLECTION);
+    const whitelist = await whitelistCollection.findOne({ _id: new ObjectId(id) });
 
     if (whitelist) {
-        const { _id, ...other } = whitelist;
-        return { id: _id.toHexString(), ...other };
-    } else {
-        return whitelist;
-    }
-}
-
-export const create = async (ip: string) => {
-    const whitelistsCollection = await getCollection<Whitelist>(WHITELIST_COLLECTION);
-
-    const now = new Date();
-    const whitelist: Whitelist = {
-        ip,
-        createdAt: now
+        const { _id, ...rest } = whitelist;
+        return { id: _id, ...rest };
     }
 
-    const { insertedId: id } = await whitelistsCollection.insertOne(whitelist);
-    const { _id, ...other } = whitelist as WithId<Whitelist>;
-    return { id, ...other };
+    return null;
 }
 
-export const createMany = async (ips: string[]) => {
-    const whitelistsCollection = await getCollection<Whitelist>(WHITELIST_COLLECTION);
+export const create = async (whitelist: Create<Whitelist>): Promise<WithAudit<Whitelist>> => {
+    const whitelistCollection = await getCollection<WithAudit<Whitelist>>(WHITELIST_COLLECTION);
+    const current = await whitelistCollection.findOne({ ip: whitelist.ip });
 
-    const now = new Date();
-    const data = ips.map(ip => {
-        return {
-            ip, createdAt: now
-        }
-    })
+    if (current) {
+        throw new BadRequestError(400, `Whitelist [ip='${whitelist.ip}'] is already exist`);
+    }
 
-    return await whitelistsCollection.insertMany(data);
+    const insertOneResult: InsertOneResult<WithAudit<Whitelist>> = await whitelistCollection.insertOne(whitelist);
+    const { _id, ...rest } = whitelist;
+    return { id: insertOneResult.insertedId, ...rest };
 }
 
-export const deleteById = async (_id: ObjectId) => {
-    const whitelistsCollection = await getCollection<Whitelist>(WHITELIST_COLLECTION);
-    return await whitelistsCollection.deleteOne({ _id });
+export const update = async ({ _id, ...rest }: Update<Whitelist>): Promise<UpdateResult> => {
+    const whitelistCollection = await getCollection<Whitelist>(WHITELIST_COLLECTION);
+    return await whitelistCollection.updateOne({ _id }, { $set: rest });
+}
+
+export const deleteById = async (id: string): Promise<DeleteResult> => {
+    if (!ObjectId.isValid(id)) {
+        return { acknowledged: false, deletedCount: 0 };
+    }
+
+    const whitelistCollection = await getCollection<Whitelist>(WHITELIST_COLLECTION);
+    return await whitelistCollection.deleteOne({ _id: new ObjectId(id) });
 }

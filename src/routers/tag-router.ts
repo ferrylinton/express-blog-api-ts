@@ -1,14 +1,16 @@
 import { Router } from 'express';
+import { BLOG_ADMIN, BLOG_OWNER } from '../configs/auth-constant';
 import * as tagController from '../controllers/tag-controller';
 import { hasAuthority } from '../middleware/has-authority-handler';
-import { MODIFY_USER_DATA, READ_USER_DATA } from '../configs/auth-constant';
 
 const router = Router();
 
-router.get('/', hasAuthority(READ_USER_DATA), tagController.find);
-router.post('/', hasAuthority(MODIFY_USER_DATA), tagController.create);
-router.get("/:id", hasAuthority(READ_USER_DATA), tagController.findById);
-router.put("/:id", hasAuthority(MODIFY_USER_DATA), tagController.update);
-router.delete("/:id", hasAuthority(MODIFY_USER_DATA), tagController.deleteById);
+router.get('/', tagController.find);
+router.post('/', hasAuthority(BLOG_OWNER), tagController.create);
+router.get("/:id", tagController.findById);
+router.put("/:id", hasAuthority(BLOG_ADMIN), tagController.update);
+router.delete("/:id", hasAuthority(BLOG_ADMIN), tagController.deleteById);
+router.put("/:owner/:id", hasAuthority(BLOG_OWNER), tagController.update);
+router.delete("/:owner/:id", hasAuthority(BLOG_OWNER), tagController.deleteById);
 
 export default router;

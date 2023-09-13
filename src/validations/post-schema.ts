@@ -19,9 +19,7 @@ export const CreatePostSchema = object({
 
     tags: string().array().nonempty({
         message: "tags.empty"
-    }),
-
-    createdBy: string({ required_error: "createdBy.required" })
+    })
 
 });
 
