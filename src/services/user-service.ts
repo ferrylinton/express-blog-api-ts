@@ -1,102 +1,82 @@
-import bcrypt from 'bcrypt';
-import { ObjectId, WithId } from "mongodb";
+import { DeleteResult, InsertOneResult, ObjectId, UpdateResult } from "mongodb";
 import { getCollection } from "../configs/mongodb";
 import { USER_COLLECTION } from "../db/schemas/user-schema";
-import { BASIC } from '../configs/auth-constant';
+import { BadRequestError } from '../errors/badrequest-error';
+import { Create, Update, WithAudit } from '../types/common-type';
+import bcrypt from 'bcrypt';
 
 
-export const find = async (): Promise<User[]> => {
-    const usersCollection = await getCollection<User>(USER_COLLECTION);
-    const cursor = usersCollection.find().limit(10).sort({ 'createdAt': -1 });
+export const find = async (): Promise<Array<WithAudit<User>>> => {
+    const userCollection = await getCollection<WithAudit<User>>(USER_COLLECTION);
+    const cursor = userCollection.find().sort({ 'username': -1 });
 
-    const users: User[] = [];
-
+    const authorities: Array<WithAudit<User>> = [];
     for await (const doc of cursor) {
-        const { _id, ...other } = doc;
-        const id = _id.toHexString();
-        users.push({ id, ...other });
+        const { _id, ...rest } = doc;
+        authorities.push({ id: _id, ...rest });
     }
 
-    return users;
+    return authorities;
 }
 
-export const findById = async (_id: ObjectId) => {
-    const usersCollection = await getCollection<User>(USER_COLLECTION);
-    const user = await usersCollection.findOne({ _id });
-
-    if (user) {
-        const { _id, ...other } = user;
-        return { id: _id.toHexString(), ...other };
-    } else {
-        return user;
+export const findById = async (id: string): Promise<WithAudit<User> | null> => {
+    if (!ObjectId.isValid(id)) {
+        return null;
     }
-}
 
-export const findByUsername = async (username: string) => {
-    const usersCollection = await getCollection<User>(USER_COLLECTION);
-    const user = await usersCollection.findOne({ username });
+    const userCollection = await getCollection<WithAudit<User>>(USER_COLLECTION);
+    const user = await userCollection.findOne({ _id: new ObjectId(id) });
 
     if (user) {
-        const { _id, ...other } = user;
-        return { id: _id.toHexString(), ...other };
+        const { _id, ...rest } = user;
+        return { id: _id, ...rest };
     }
 
     return null;
 }
 
-export const create = async (username: string, password: string, email: string, authorities: string[] = [BASIC]) => {
-    const usersCollection = await getCollection<User>(USER_COLLECTION);
+export const create = async (user: Create<User>): Promise<WithAudit<User>> => {
+    const userCollection = await getCollection<WithAudit<User>>(USER_COLLECTION);
+    const current = await userCollection.findOne({
+        "$or": [{
+            "username": user.username
+        }, {
+            "email": user.email
+        }]
+    });
 
-    password = bcrypt.hashSync(password, 10);
-    const now = new Date();
-    const user: User = {
-        username,
-        password,
-        email,
-        activated: false,
-        locked: false,
-        loginAttempt: 0,
-        authorities,
-        createdAt: now,
-        updatedAt: now
+    if (current) {
+        throw new BadRequestError(400, `User [username='${user.username}'] or [email='${user.email}'] is already exist`);
     }
 
-    const { insertedId: id } = await usersCollection.insertOne(user);
-    const { _id, ...other } = user as WithId<User>;
-    return { id, ...other };
+    user.password = bcrypt.hashSync(user.password, 10);
+    const insertOneResult: InsertOneResult<WithAudit<User>> = await userCollection.insertOne(user);
+    const { _id, ...rest } = user;
+    return { id: insertOneResult.insertedId, ...rest };
 }
 
-export const update = async (_id: ObjectId, userUpdate: UserUpdate) => {
-    const usersCollection = await getCollection<User>(USER_COLLECTION);
-
-    const data: Partial<User> = {
-        updatedAt: new Date()
-    }
-
-    if (userUpdate.password) {
-        data.password = bcrypt.hashSync(userUpdate.password, 10);
-    }
-
-    if (userUpdate.loginAttempt) {
-        data.loginAttempt = userUpdate.loginAttempt;
-    }
-
-    if (userUpdate.activated) {
-        data.activated = userUpdate.activated;
-    }
-
-    if (userUpdate.locked) {
-        data.locked = userUpdate.locked;
-    }
-
-    if (userUpdate.authorities) {
-        data.authorities = userUpdate.authorities;
-    }
-
-    return await usersCollection.updateOne({ _id }, { $set: data });
+export const update = async ({ _id, ...rest }: Update<User>): Promise<UpdateResult> => {
+    const userCollection = await getCollection<User>(USER_COLLECTION);
+    return await userCollection.updateOne({ _id }, { $set: rest });
 }
 
-export const deleteById = async (_id: ObjectId) => {
-    const usersCollection = await getCollection<User>(USER_COLLECTION);
-    return await usersCollection.deleteOne({ _id });
+export const deleteById = async (id: string): Promise<DeleteResult> => {
+    if (!ObjectId.isValid(id)) {
+        return { acknowledged: false, deletedCount: 0 };
+    }
+
+    const userCollection = await getCollection<User>(USER_COLLECTION);
+    return await userCollection.deleteOne({ _id: new ObjectId(id) });
+}
+
+export const findByUsername = async (username: string): Promise<WithAudit<User> | null> => {
+    const userCollection = await getCollection<WithAudit<User>>(USER_COLLECTION);
+    const user = await userCollection.findOne({ username });
+
+    if (user) {
+        const { _id, ...rest } = user;
+        return { id: _id, ...rest };
+    }
+
+    return null;
 }

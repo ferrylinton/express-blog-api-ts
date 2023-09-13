@@ -29,6 +29,21 @@ export const createImageBucketSchema = async (db: Db) => {
                         },
                         filename: {
                             bsonType: "string"
+                        },
+                        metadata: {
+                            bsonType: "object",
+                            required: ["total"],
+                            properties: {
+                                createdBy: {
+                                    bsonType: "string"
+                                },
+                                contentType: {
+                                    bsonType: "string"
+                                },
+                                originalName: {
+                                    bsonType: "string"
+                                }
+                            }
                         }
                     },
                     required: ["length", "chunkSize", "uploadDate", "filename"],

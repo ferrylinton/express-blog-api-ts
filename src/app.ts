@@ -1,14 +1,14 @@
 import express, { Express } from 'express';
 import favicon from 'express-favicon';
 import helmet from 'helmet';
+import setLocales from './configs/i18n';
 import { authHandler } from './middleware/auth-handler';
+import { clientInfoHandler } from './middleware/client-info-handler';
 import { corsHandler } from './middleware/cors-handler';
 import { ipWhitelistHandler } from './middleware/ip-whitelist-handler';
 import { notFoundHandler } from './middleware/not-found-handler';
 import { restErrorHandler } from './middleware/rest-error-handler';
 import setRoutes from './routers';
-import { clientInfoHandler } from './middleware/client-info-handler';
-import setLocales from './configs/i18n';
 
 
 const app: Express = express();

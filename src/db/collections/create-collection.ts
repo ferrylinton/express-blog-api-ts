@@ -2,6 +2,8 @@ import { MONGODB_DATABASE } from "../../configs/env-constant";
 import { mongoClient } from "../../configs/mongodb";
 import { AUTHORITY_COLLECTION, createAuthoritySchema } from "../schemas/authority-schema";
 import { IMAGE_FILES_COLLECTION, createImageBucketSchema } from "../schemas/image-bucket-schema";
+import { POST_COLLECTION, createPostSchema } from "../schemas/post-schema";
+import { TAG_COLLECTION, createTagSchema } from "../schemas/tag-schema";
 import { TODO_COLLECTION, createTodoCollection } from "../schemas/todo-schema";
 import { USER_COLLECTION, createUserchema } from "../schemas/user-schema";
 import { WHITELIST_COLLECTION, createWhitelistSchema } from "../schemas/whitelist-schema";
@@ -41,6 +43,14 @@ import { WHITELIST_COLLECTION, createWhitelistSchema } from "../schemas/whitelis
 
         if (!collectionNames.includes(IMAGE_FILES_COLLECTION)) {
             await createImageBucketSchema(db);
+        }
+
+        if (!collectionNames.includes(TAG_COLLECTION)) {
+            await createTagSchema(db);
+        }
+
+        if (!collectionNames.includes(POST_COLLECTION)) {
+            await createPostSchema(db);
         }
 
         // Close connection

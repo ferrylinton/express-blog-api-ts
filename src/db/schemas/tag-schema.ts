@@ -1,29 +1,33 @@
 import { Db } from "mongodb";
 
-export const AUTHORITY_COLLECTION = "authorities";
+export const TAG_COLLECTION = "tags";
 
-export const createAuthoritySchema = async (db: Db) => {
+export const createTagSchema = async (db: Db) => {
     try {
-        await db.createCollection(AUTHORITY_COLLECTION, {
+        await db.createCollection(TAG_COLLECTION, {
             validator: {
                 $jsonSchema: {
                     bsonType: "object",
-                    title: AUTHORITY_COLLECTION,
+                    title: TAG_COLLECTION,
                     additionalProperties: false,
                     properties: {
                         _id: {
                             bsonType: "objectId",
                         },
-                        code: {
+                        name: {
                             bsonType: "string",
                             minLength: 2,
-                            maxLength: 5,
+                            maxLength: 30,
                             description: "Must be a string and unique"
                         },
                         description: {
                             bsonType: "string",
                             minLength: 2,
-                            maxLength: 100,
+                            description: "Must be a string and unique"
+                        },
+                        logo: {
+                            bsonType: "string",
+                            minLength: 2,
                             description: "Must be a string and unique"
                         },
                         createdBy: {
@@ -39,7 +43,7 @@ export const createAuthoritySchema = async (db: Db) => {
                             bsonType: "date"
                         }
                     },
-                    required: ["code", "description", "createdAt", "createdBy"],
+                    required: ["name", "description", "logo", "createdAt", "createdBy"],
                 },
             },
             validationLevel: "strict",
@@ -47,10 +51,9 @@ export const createAuthoritySchema = async (db: Db) => {
         });
 
         await db
-            .collection(AUTHORITY_COLLECTION)
+            .collection(TAG_COLLECTION)
             .createIndexes([
-                { name: 'authority_code_unique', unique: true, key: { code: 1 } },
-                { name: 'authority_description_unique', unique: true, key: { description: 1 } }
+                { name: 'tag_name_unique', unique: true, key: { tag: 1 } }
             ]);
 
     } catch (error) {

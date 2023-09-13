@@ -1,51 +1,45 @@
 import { Db } from "mongodb";
 
-export const USER_COLLECTION = "users";
+export const POST_COLLECTION = "posts";
 
-export const createUserchema = async (db: Db) => {
+export const createPostSchema = async (db: Db) => {
     try {
-        await db.createCollection(USER_COLLECTION, {
+        await db.createCollection(POST_COLLECTION, {
             validator: {
                 $jsonSchema: {
                     bsonType: "object",
-                    title: USER_COLLECTION,
+                    title: POST_COLLECTION,
                     additionalProperties: false,
                     properties: {
                         _id: {
                             bsonType: "objectId",
                         },
-                        username: {
+                        slug: {
                             bsonType: "string",
+                            minLength: 5,
+                            maxLength: 30,
                             description: "Must be a string and unique"
                         },
-                        password: {
+                        title: {
                             bsonType: "string",
-                            description: "Must be a string"
-                        },
-                        email: {
-                            bsonType: "string",
+                            minLength: 5,
+                            maxLength: 100,
                             description: "Must be a string and unique"
                         },
-                        authorities: {
+                        description: {
+                            bsonType: "string",
+                            minLength: 5,
+                            maxLength: 200,
+                            description: "Must be a string and unique"
+                        },
+                        tags: {
                             bsonType: "array",
-                            description: "Authorities must be an array of strings",
+                            description: "Tags must be an array of strings",
                             minItems: 1,
                             uniqueItems: true,
                             items: {
                                 bsonType: "string"
                             }
-                        },
-                        loginAttempt: {
-                            bsonType: 'int',
-                            description: 'It can only be number'
-                        },
-                        activated: {
-                            bsonType: 'bool',
-                            description: 'It can only be true or false'
-                        },
-                        locked: {
-                            bsonType: 'bool',
-                            description: 'It can only be true or false'
                         },
                         createdBy: {
                             bsonType: "string"
@@ -60,7 +54,7 @@ export const createUserchema = async (db: Db) => {
                             bsonType: "date"
                         }
                     },
-                    required: ["username", "email", "password", "authorities", "loginAttempt", "activated", "locked", "createdAt", "createdBy"],
+                    required: ["slug", "title", "description", "tags", "createdAt", "createdBy"],
                 },
             },
             validationLevel: "strict",
@@ -68,8 +62,13 @@ export const createUserchema = async (db: Db) => {
         });
 
         await db
-            .collection(USER_COLLECTION)
-            .createIndex({ username: 1 }, { unique: true });
+            .collection(POST_COLLECTION)
+            .createIndexes([
+                { name: 'post_slug_unique', unique: true, key: { slug: 1 } },
+                { name: 'post_title_unique', unique: true, key: { post: 1 } },
+                { name: 'post_description_unique', unique: true, key: { description: 1 } },
+                { name: 'post_createdBy_idx', unique: false, key: { createdBy: 1 } }
+            ]);
 
     } catch (error) {
         console.error(error);

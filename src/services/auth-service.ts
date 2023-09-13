@@ -5,6 +5,7 @@ import { uid } from 'uid';
 import { AuthenticateType } from '../validations/authenticate-schema';
 import * as redisService from './redis-service';
 import * as userService from './user-service';
+import { ClientData } from '../types/client-data-type';
 
 
 export const authenticate = async ({ username, password }: AuthenticateType) => {
@@ -16,7 +17,6 @@ export const authenticate = async ({ username, password }: AuthenticateType) => 
 
     return null;
 }
-
 
 export const generateToken = async ({ username, authorities }: User, client: ClientData) => {
     const token = uid(32);

@@ -1,12 +1,4 @@
-type Authority = {
-    id?: string,
+export type Authority = {
     code: string,
     description: string,
-    createdAt: Date,
-    updatedAt: Date
-}
-
-type AuthorityUpdate = {
-    code?: string,
-    description?: string
 }

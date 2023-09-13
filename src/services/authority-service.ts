@@ -1,69 +1,69 @@
-import { ObjectId, WithId } from "mongodb";
+import { DeleteResult, InsertOneResult, ObjectId, UpdateResult } from "mongodb";
 import { getCollection } from "../configs/mongodb";
 import { AUTHORITY_COLLECTION } from "../db/schemas/authority-schema";
+import { Authority } from "../types/authority-type";
+import { WithAudit, Update, Create } from "../types/common-type";
+import { BadRequestError } from "../errors/badrequest-error";
 
 
-export const find = async (): Promise<Authority[]> => {
-    const authorities: Authority[] = [];
-    const authoritiesCollection = await getCollection<Authority>(AUTHORITY_COLLECTION);
-    const cursor = authoritiesCollection.find().limit(10).sort({ 'createdAt': -1 });
+export const find = async (): Promise<Array<WithAudit<Authority>>> => {
+    const authorityCollection = await getCollection<WithAudit<Authority>>(AUTHORITY_COLLECTION);
+    const cursor = authorityCollection.find().sort({ 'code': -1 });
 
+    const authorities: Array<WithAudit<Authority>> = [];
     for await (const doc of cursor) {
-        const { _id, ...other } = doc;
-        const id = _id.toHexString();
-        authorities.push({ id, ...other });
+        const { _id, ...rest } = doc;
+        authorities.push({ id: _id, ...rest });
     }
 
     return authorities;
 }
 
-export const findById = async (_id: ObjectId) => {
-    const authoritiesCollection = await getCollection<Authority>(AUTHORITY_COLLECTION);
-    const authority = await authoritiesCollection.findOne({ _id });
+export const findById = async (id: string): Promise<WithAudit<Authority> | null> => {
+    if (!ObjectId.isValid(id)) {
+        return null;
+    }
+
+    const authorityCollection = await getCollection<WithAudit<Authority>>(AUTHORITY_COLLECTION);
+    const authority = await authorityCollection.findOne({ _id: new ObjectId(id) });
 
     if (authority) {
-        const { _id, ...other } = authority;
-        return { id: _id.toHexString(), ...other };
-    } else {
-        return authority;
+        const { _id, ...rest } = authority;
+        return { id: _id, ...rest };
     }
+
+    return null;
 }
 
-export const create = async (code: string, description: string) => {
-    const authoritiesCollection = await getCollection<Authority>(AUTHORITY_COLLECTION);
+export const create = async (authority: Create<Authority>): Promise<WithAudit<Authority>> => {
+    const authorityCollection = await getCollection<WithAudit<Authority>>(AUTHORITY_COLLECTION);
+    const current = await authorityCollection.findOne({
+        "$or": [{
+            "code": authority.code
+        }, {
+            "description": authority.description
+        }]
+    });
 
-    const now = new Date();
-    const authority: Authority = {
-        code,
-        description,
-        createdAt: now,
-        updatedAt: now
+    if (current) {
+        throw new BadRequestError(400, `Authority [code='${authority.code}'] or [description='${authority.description}'] is already exist`);
     }
 
-    const { insertedId: id } = await authoritiesCollection.insertOne(authority);
-    const { _id, ...other } = authority as WithId<Authority>;
-    return { id, ...other };
+    const insertOneResult: InsertOneResult<WithAudit<Authority>> = await authorityCollection.insertOne(authority);
+    const { _id, ...rest } = authority;
+    return { id: insertOneResult.insertedId, ...rest };
 }
 
-export const update = async (_id: ObjectId, authorityUpdate: AuthorityUpdate) => {
-    const authoritiesCollection = await getCollection<Authority>(AUTHORITY_COLLECTION);
-
-    const data: Partial<Authority> = {
-        updatedAt: new Date()
-    }
-
-    if (authorityUpdate.code) {
-        data.code = authorityUpdate.code;
-    }
-
-    if (authorityUpdate.description) {
-        data.description = authorityUpdate.description;
-    }
-
-    return await authoritiesCollection.updateOne({ _id }, { $set: data });
+export const update = async ({ _id, ...rest }: Update<Authority>): Promise<UpdateResult> => {
+    const authorityCollection = await getCollection<Authority>(AUTHORITY_COLLECTION);
+    return await authorityCollection.updateOne({ _id }, { $set: rest });
 }
 
-export const deleteById = async (_id: ObjectId) => {
-    const authoritiesCollection = await getCollection<Authority>(AUTHORITY_COLLECTION);
-    return await authoritiesCollection.deleteOne({ _id });
+export const deleteById = async (id: string): Promise<DeleteResult> => {
+    if (!ObjectId.isValid(id)) {
+        return { acknowledged: false, deletedCount: 0 };
+    }
+
+    const authorityCollection = await getCollection<Authority>(AUTHORITY_COLLECTION);
+    return await authorityCollection.deleteOne({ _id: new ObjectId(id) });
 }
