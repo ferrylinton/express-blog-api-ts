@@ -64,7 +64,7 @@ export const createTagSchema = async (db: Db) => {
         await db
             .collection(TAG_COLLECTION)
             .createIndexes([
-                { "name": "tag_name_unique", "unique": true, "collation": { "locale": "en_US", "strength": 2 }, "key": { "tag": 1 } }
+                { "name": "tag_name_unique", "unique": true, "collation": { "locale": "en_US", "strength": 2 }, "key": { "name": 1 } }
             ]);
 
     } catch (error) {
