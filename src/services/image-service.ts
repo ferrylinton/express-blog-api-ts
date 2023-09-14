@@ -1,6 +1,6 @@
 import { GridFSBucket, ObjectId, WithId } from "mongodb";
 import { getCollection, getDb } from "../configs/mongodb";
-import { IMAGE_FILES_COLLECTION } from "../db/schemas/image-bucket-schema";
+import { IMAGE_FILES_COLLECTION } from "../configs/db-constant";
 
 let bucket: GridFSBucket;
 

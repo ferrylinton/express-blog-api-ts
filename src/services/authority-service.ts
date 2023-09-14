@@ -1,9 +1,9 @@
 import { DeleteResult, InsertOneResult, ObjectId, UpdateResult } from "mongodb";
 import { getCollection } from "../configs/mongodb";
-import { AUTHORITY_COLLECTION } from "../db/schemas/authority-schema";
-import { Authority } from "../types/authority-type";
-import { WithAudit, Update, Create } from "../types/common-type";
+import { AUTHORITY_COLLECTION } from "../configs/db-constant";
 import { BadRequestError } from "../errors/badrequest-error";
+import { Authority } from "../types/authority-type";
+import { Create, Update, WithAudit } from "../types/common-type";
 
 
 export const find = async (): Promise<Array<WithAudit<Authority>>> => {

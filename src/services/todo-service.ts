@@ -1,87 +1,70 @@
-import { ObjectId, WithId } from "mongodb";
+import { DeleteResult, InsertOneResult, ObjectId, UpdateResult } from "mongodb";
 import { getCollection } from "../configs/mongodb";
-import { TODO_COLLECTION } from "../db/schemas/todo-schema";
+import { TODO_COLLECTION } from "../configs/db-constant";
+import { BadRequestError } from "../errors/badrequest-error";
+import { Create, Update, WithAudit } from "../types/common-type";
+import { Todo } from "../types/todo-type";
 
 
-export const find = async (): Promise<Todo[]> => {
-    const todoes: Todo[] = [];
-    const todoesCollection = await getCollection<Todo>(TODO_COLLECTION);
-    const cursor = todoesCollection.find().limit(10).sort({ 'createdAt': -1 });
 
+export const find = async (): Promise<Array<WithAudit<Todo>>> => {
+    const todoCollection = await getCollection<WithAudit<Todo>>(TODO_COLLECTION);
+    const cursor = todoCollection.find().sort({ 'name': -1 });
+
+    const todos: Array<WithAudit<Todo>> = [];
     for await (const doc of cursor) {
-        const { _id, ...other } = doc;
-        const id = _id.toHexString();
-        todoes.push({ id, ...other });
+        const { _id, ...rest } = doc;
+        todos.push({ id: _id, ...rest });
     }
 
-    return todoes;
+    return todos;
 }
 
-export const findById = async (_id: ObjectId) => {
-    const todoesCollection = await getCollection<Todo>(TODO_COLLECTION);
-    const todo = await todoesCollection.findOne({ _id });
+export const findById = async (id: string): Promise<WithAudit<Todo> | null> => {
+    if (!ObjectId.isValid(id)) {
+        return null;
+    }
+
+    const todoCollection = await getCollection<WithAudit<Todo>>(TODO_COLLECTION);
+    const todo = await todoCollection.findOne({ _id: new ObjectId(id) });
 
     if (todo) {
-        const { _id, ...other } = todo;
-        return { id: _id.toHexString(), ...other };
-    } else {
-        return todo;
+        const { _id, ...rest } = todo;
+        return { id: _id, ...rest };
     }
+
+    return null;
 }
 
-export const create = async (task: string) => {
-    const todoesCollection = await getCollection<Todo>(TODO_COLLECTION);
+export const create = async (todo: Create<Todo>): Promise<WithAudit<Todo>> => {
+    const todoCollection = await getCollection<WithAudit<Todo>>(TODO_COLLECTION);
+    const current = await todoCollection.findOne({ name: todo.task });
 
-    // Insert new data
-
-    const now = new Date();
-    const todo: Todo = {
-        task,
-        done: false,
-        createdAt: now,
-        updatedAt: now
-    }
-    const { insertedId: id } = await todoesCollection.insertOne(todo);
-    const { _id, ...other } = todo as WithId<Todo>;
-
-    // Delete data if total data > 20
-
-    const count = await todoesCollection.countDocuments();
-    if (count > 20) {
-        const idDocuments = await todoesCollection
-            .find()
-            .project({ _id: 1 })
-            .limit(count - 20)
-            .sort({ createdAt: 1 })
-            .toArray();
-
-        
-        const ids: ObjectId[] = idDocuments.map(doc => doc._id);
-        todoesCollection.deleteMany({ _id: { $in: ids } })
+    if (current) {
+        throw new BadRequestError(400, `Todo [task='${todo.task}'] is already exist`);
     }
 
-    return { id, ...other };
+    const insertOneResult: InsertOneResult<WithAudit<Todo>> = await todoCollection.insertOne(todo);
+    const { _id, ...rest } = todo;
+    return { id: insertOneResult.insertedId, ...rest };
 }
 
-export const update = async (_id: ObjectId, todoUpdate: TodoUpdate) => {
-    const todoesCollection = await getCollection<Todo>(TODO_COLLECTION);
-
-    const data: Partial<Todo> = {
-        updatedAt: new Date()
-    }
-
-    if (todoUpdate.task) {
-        data.task = todoUpdate.task;
-    }
-
-    if (todoUpdate.done) {
-        data.done = todoUpdate.done;
-    }
-
-    return await todoesCollection.updateOne({ _id }, { $set: data });
+export const update = async ({ _id, ...rest }: Update<Todo>): Promise<UpdateResult> => {
+    const todoCollection = await getCollection<Todo>(TODO_COLLECTION);
+    return await todoCollection.updateOne({ _id }, { $set: rest });
 }
 
-export const deleteById = async (_id: ObjectId) => {
-    const todoesCollection = await getCollection<Todo>(TODO_COLLECTION);
-    return await todoesCollection.deleteOne({ _id });
+export const updateByOwner = async (owner: string, { _id, ...rest }: Update<Todo>): Promise<UpdateResult> => {
+    const todoCollection = await getCollection<Todo>(TODO_COLLECTION);
+    return await todoCollection.updateOne({ owner, _id }, { $set: rest });
+}
+
+export const deleteById = async (_id: ObjectId): Promise<DeleteResult> => {
+    const todoCollection = await getCollection<Todo>(TODO_COLLECTION);
+    return await todoCollection.deleteOne({ _id });
+}
+
+export const deleteByOwnerAndId = async (owner: string, _id: ObjectId): Promise<DeleteResult> => {
+    const todoCollection = await getCollection<Todo>(TODO_COLLECTION);
+    return await todoCollection.deleteOne({ owner, _id });
 }

@@ -1,6 +1,6 @@
 import { DeleteResult, InsertOneResult, ObjectId, UpdateResult } from "mongodb";
 import { getCollection } from "../configs/mongodb";
-import { WHITELIST_COLLECTION } from "../db/schemas/whitelist-schema";
+import { WHITELIST_COLLECTION } from "../configs/db-constant";
 import { BadRequestError } from "../errors/badrequest-error";
 import { Create, Update, WithAudit } from "../types/common-type";
 

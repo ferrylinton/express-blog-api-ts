@@ -1,12 +1,13 @@
+import { AUTHORITY_COLLECTION, IMAGE_FILES_COLLECTION, POST_COLLECTION, TAG_COLLECTION, TODO_COLLECTION, USER_COLLECTION, WHITELIST_COLLECTION } from "../../configs/db-constant";
 import { MONGODB_DATABASE } from "../../configs/env-constant";
 import { mongoClient } from "../../configs/mongodb";
-import { AUTHORITY_COLLECTION, createAuthoritySchema } from "../schemas/authority-schema";
-import { IMAGE_FILES_COLLECTION, createImageBucketSchema } from "../schemas/image-bucket-schema";
-import { POST_COLLECTION, createPostSchema } from "../schemas/post-schema";
-import { TAG_COLLECTION, createTagSchema } from "../schemas/tag-schema";
-import { TODO_COLLECTION, createTodoCollection } from "../schemas/todo-schema";
-import { USER_COLLECTION, createUserchema } from "../schemas/user-schema";
-import { WHITELIST_COLLECTION, createWhitelistSchema } from "../schemas/whitelist-schema";
+import { createAuthoritySchema } from "../schemas/authority-schema";
+import { createImageBucketSchema } from "../schemas/image-bucket-schema";
+import { createPostSchema } from "../schemas/post-schema";
+import { createTagSchema } from "../schemas/tag-schema";
+import { createTodoCollection } from "../schemas/todo-schema";
+import { createUserchema } from "../schemas/user-schema";
+import { createWhitelistSchema } from "../schemas/whitelist-schema";
 
 (async () => {
 

@@ -1,5 +1,8 @@
 export type Tag = {
     name: string,
-    description: string,
+    description: {
+        id: string,
+        en: string
+    },
     logo: string
 }

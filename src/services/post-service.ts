@@ -1,6 +1,6 @@
 import { DeleteResult, InsertOneResult, ObjectId, UpdateResult } from "mongodb";
 import { getCollection } from "../configs/mongodb";
-import { POST_COLLECTION } from "../db/schemas/post-schema";
+import { POST_COLLECTION } from "../configs/db-constant";
 import { BadRequestError } from "../errors/badrequest-error";
 import { Create, Update, WithAudit } from "../types/common-type";
 import { Post } from "../types/post-type";
@@ -38,12 +38,6 @@ export const findById = async (id: string): Promise<WithAudit<Post> | null> => {
 
 export const create = async (post: Create<Post>): Promise<WithAudit<Post>> => {
     const postCollection = await getCollection<WithAudit<Post>>(POST_COLLECTION);
-    const current = await postCollection.findOne({ title: post.title });
-
-    if (current) {
-        throw new BadRequestError(400, `Post ['${post.title}'] is already exist`);
-    }
-
     const insertOneResult: InsertOneResult<WithAudit<Post>> = await postCollection.insertOne(post);
     const { _id, ...rest } = post;
     return { id: insertOneResult.insertedId, ...rest };

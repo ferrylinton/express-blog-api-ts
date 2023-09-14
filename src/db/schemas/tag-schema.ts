@@ -1,63 +1,74 @@
 import { Db } from "mongodb";
+import { TAG_COLLECTION } from "../../configs/db-constant";
 
-export const TAG_COLLECTION = "tags";
+
 
 export const createTagSchema = async (db: Db) => {
     try {
         await db.createCollection(TAG_COLLECTION, {
-            validator: {
+            "validator": {
                 $jsonSchema: {
-                    bsonType: "object",
-                    title: TAG_COLLECTION,
-                    additionalProperties: false,
-                    properties: {
-                        _id: {
-                            bsonType: "objectId",
+                    "bsonType": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                        "_id": {
+                            "bsonType": "objectId"
                         },
-                        name: {
-                            bsonType: "string",
-                            minLength: 2,
-                            maxLength: 30,
-                            description: "Must be a string and unique"
+                        "name": {
+                            "bsonType": "string",
+                            "minLength": 2,
+                            "maxLength": 30,
+                            "description": "Must be a string and unique"
                         },
-                        description: {
-                            bsonType: "string",
-                            minLength: 2,
-                            description: "Must be a string and unique"
+                        "description": {
+                            "bsonType": "object",
+                            "properties": {
+                                "id": {
+                                    "bsonType": "string",
+                                    "minLength": 2,
+                                    "description": "Must be a string and unique"
+                                },
+                                "en": {
+                                    "bsonType": "string",
+                                    "minLength": 2,
+                                    "description": "Must be a string and unique"
+                                }
+                            },
+                            "required": ["id", "en"]
                         },
-                        logo: {
-                            bsonType: "string",
-                            minLength: 2,
-                            description: "Must be a string and unique"
+                        "logo": {
+                            "bsonType": "string",
+                            "minLength": 2,
+                            "description": "Must be a string and unique"
                         },
-                        createdBy: {
-                            bsonType: "string"
+                        "createdBy": {
+                            "bsonType": "string"
                         },
-                        createdAt: {
-                            bsonType: "date",
+                        "createdAt": {
+                            "bsonType": "date"
                         },
-                        updatedBy: {
-                            bsonType: "string"
+                        "updatedBy": {
+                            "bsonType": "string"
                         },
-                        updatedAt: {
-                            bsonType: "date"
+                        "updatedAt": {
+                            "bsonType": "date"
                         }
                     },
-                    required: ["name", "description", "logo", "createdAt", "createdBy"],
-                },
+                    "required": ["name", "description", "logo", "createdAt", "createdBy"]
+                }
             },
-            validationLevel: "strict",
-            validationAction: "error",
+            "validationLevel": "strict",
+            "validationAction": "error"
         });
 
         await db
             .collection(TAG_COLLECTION)
             .createIndexes([
-                { name: 'tag_name_unique', unique: true, key: { tag: 1 } }
+                { "name": "tag_name_unique", "unique": true, "collation": { "locale": "en_US", "strength": 2 }, "key": { "tag": 1 } }
             ]);
 
     } catch (error) {
-        console.error(error);
+        console.log(error);
     }
 
 };

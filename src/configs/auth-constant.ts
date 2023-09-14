@@ -1,3 +1,5 @@
+export const SYSTEM = 'system';
+
 export const BASIC = 'BASIC';
 
 export const READ_WHITELIST_DATA = 'WHT_R';
@@ -15,3 +17,7 @@ export const BLOG_ADMIN = 'BLG_A';
 export const IMAGE_OWNER = 'IMG_O';
 
 export const IMAGE_ADMIN = 'IMG_A';
+
+export const TASK_OWNER = 'TSK_O';
+
+export const TASK_ADMIN = 'TSK_A';

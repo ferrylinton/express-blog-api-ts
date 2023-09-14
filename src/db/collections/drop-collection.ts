@@ -1,12 +1,12 @@
 import { MONGODB_DATABASE } from "../../configs/env-constant";
 import { mongoClient } from "../../configs/mongodb";
-import { AUTHORITY_COLLECTION } from "../schemas/authority-schema";
-import { IMAGE_FILES_CHUNKS, IMAGE_FILES_COLLECTION } from "../schemas/image-bucket-schema";
-import { POST_COLLECTION } from "../schemas/post-schema";
-import { TAG_COLLECTION } from "../schemas/tag-schema";
-import { TODO_COLLECTION } from "../schemas/todo-schema";
-import { USER_COLLECTION } from "../schemas/user-schema";
-import { WHITELIST_COLLECTION } from "../schemas/whitelist-schema";
+import { AUTHORITY_COLLECTION } from "../../configs/db-constant";
+import { IMAGE_FILES_CHUNKS, IMAGE_FILES_COLLECTION } from "../../configs/db-constant";
+import { POST_COLLECTION } from "../../configs/db-constant";
+import { TAG_COLLECTION } from "../../configs/db-constant";
+import { TODO_COLLECTION } from "../../configs/db-constant";
+import { USER_COLLECTION } from "../../configs/db-constant";
+import { WHITELIST_COLLECTION } from "../../configs/db-constant";
 
 
 (async () => {

@@ -1,51 +1,56 @@
 import { Db } from "mongodb";
+import { TODO_COLLECTION } from "../../configs/db-constant";
 
-export const TODO_COLLECTION = "todoes";
+
 
 export const createTodoCollection = async (db: Db) => {
     try {
         await db.createCollection(TODO_COLLECTION, {
-            validator: {
+            "validator": {
                 $jsonSchema: {
-                    bsonType: "object",
-                    title: TODO_COLLECTION,
-                    additionalProperties: false,
-                    properties: {
-                        _id: {
-                            bsonType: "objectId",
+                    "bsonType": "object",
+                    "title": "TODO_COLLECTION",
+                    "additionalProperties": false,
+                    "properties": {
+                        "_id": {
+                            "bsonType": "objectId"
                         },
-                        task: {
-                            bsonType: "string",
-                            description: "Must be a string and unique"
+                        "task": {
+                            "bsonType": "string",
+                            "description": "Must be a string and unique"
                         },
-                        done: {
-                            bsonType: "bool",
-                            description: "It can only be true or false"
+                        "done": {
+                            "bsonType": "bool",
+                            "description": "It can only be true or false"
                         },
-                        createdAt: {
-                            bsonType: "date",
-                            description: "Must be a date"
+                        "createdBy": {
+                            "bsonType": "string"
                         },
-                        updatedAt: {
-                            bsonType: "date",
-                            description: "Must be a date"
+                        "createdAt": {
+                            "bsonType": "date"
+                        },
+                        "updatedBy": {
+                            "bsonType": "string"
+                        },
+                        "updatedAt": {
+                            "bsonType": "date"
                         }
                     },
-                    required: ["task", "done", "createdAt", "updatedAt"],
-                },
+                    "required": ["task", "done", "createdAt", "createdBy"]
+                }
             },
-            validationLevel: "strict",
-            validationAction: "error",
+            "validationLevel": "strict",
+            "validationAction": "error"
         });
 
         await db
             .collection(TODO_COLLECTION)
-            .createIndex({ task: 1 }, { unique: true });
-
-
+            .createIndexes([
+                { "name": "todo_unique", "unique": true, "collation": { "locale": "en_US", "strength": 2 }, "key": { "task": 1, "createdBy": 1 } }
+            ]);
 
     } catch (error) {
-        console.error(error);
+        console.log(error);
     }
 
 };

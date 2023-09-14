@@ -1,6 +1,6 @@
 import { DeleteResult, InsertOneResult, ObjectId, UpdateResult } from "mongodb";
 import { getCollection } from "../configs/mongodb";
-import { TAG_COLLECTION } from "../db/schemas/tag-schema";
+import { TAG_COLLECTION } from "../configs/db-constant";
 import { BadRequestError } from "../errors/badrequest-error";
 import { Create, Update, WithAudit } from "../types/common-type";
 import { Tag } from "../types/tag-type";
@@ -41,7 +41,7 @@ export const create = async (tag: Create<Tag>): Promise<WithAudit<Tag>> => {
     const current = await tagCollection.findOne({ name: tag.name });
 
     if (current) {
-        throw new BadRequestError(400, `Name ['${tag.name}'] is already exist`);
+        throw new BadRequestError(400, `Tag [name='${tag.name}'] is already exist`);
     }
 
     const insertOneResult: InsertOneResult<WithAudit<Tag>> = await tagCollection.insertOne(tag);
