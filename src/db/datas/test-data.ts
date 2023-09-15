@@ -1,4 +1,5 @@
 import { initAuthorityData } from "./authority-data";
+import { initImageData } from "./image-data";
 import { initPostData } from "./post-data";
 import { initTagData } from "./tag-data";
 import { initUserData } from "./user-data";
@@ -9,7 +10,7 @@ import { initWhitelistData } from "./whitelist-data";
 
     try {
 
-        await initPostData();
+        await initImageData();
 
     } catch (error: any) {
         console.log(error);

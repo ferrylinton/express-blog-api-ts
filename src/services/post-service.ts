@@ -50,7 +50,7 @@ export const update = async ({ _id, ...rest }: Update<Post>): Promise<UpdateResu
 
 export const updateByOwner = async (owner: string, { _id, ...rest }: Update<Post>): Promise<UpdateResult> => {
     const postCollection = await getCollection<Post>(POST_COLLECTION);
-    return await postCollection.updateOne({ owner, _id }, { $set: rest });
+    return await postCollection.updateOne({ _id, createdBy: owner }, { $set: rest });
 }
 
 export const deleteById = async (_id: ObjectId): Promise<DeleteResult> => {
@@ -60,5 +60,5 @@ export const deleteById = async (_id: ObjectId): Promise<DeleteResult> => {
 
 export const deleteByOwnerAndId = async (owner: string, _id: ObjectId): Promise<DeleteResult> => {
     const postCollection = await getCollection<Post>(POST_COLLECTION);
-    return await postCollection.deleteOne({ owner, _id });
+    return await postCollection.deleteOne({ _id, createdBy: owner });
 }

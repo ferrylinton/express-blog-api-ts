@@ -20,7 +20,7 @@ export async function findById(req: Request, res: Response, next: NextFunction) 
             return res.status(404).json({ message: DATA_IS_NOT_FOUND });
         }
 
-        const tag = await tagService.findById(req.params.id);
+        const tag = await tagService.findById(new ObjectId(req.params.id));
 
         if (tag) {
             res.status(200).json(tag);
@@ -96,9 +96,9 @@ export async function deleteById(req: Request, res: Response, next: NextFunction
         let deleteResult: DeleteResult = { acknowledged: false, deletedCount: 0 };
         const _id = new ObjectId(req.params.id);
         const owner = req.params.owner;
-        const updatedBy = req.auth.username as string;
+        const createdBy = req.auth.username as string;
 
-        if (owner && owner !== updatedBy) {
+        if (owner && owner !== createdBy) {
             return res.status(403).json({ message: ACCESS_FORBIDDEN });
         } else if (owner) {
             deleteResult = await tagService.deleteByOwnerAndId(owner, _id);

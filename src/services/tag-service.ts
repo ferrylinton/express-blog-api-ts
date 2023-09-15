@@ -9,7 +9,7 @@ import { Tag } from "../types/tag-type";
 
 export const find = async (): Promise<Array<WithAudit<Tag>>> => {
     const tagCollection = await getCollection<WithAudit<Tag>>(TAG_COLLECTION);
-    const cursor = tagCollection.find().sort({ 'name': -1 });
+    const cursor = tagCollection.find().sort({ 'name': 1 });
 
     const tags: Array<WithAudit<Tag>> = [];
     for await (const doc of cursor) {
@@ -20,13 +20,9 @@ export const find = async (): Promise<Array<WithAudit<Tag>>> => {
     return tags;
 }
 
-export const findById = async (id: string): Promise<WithAudit<Tag> | null> => {
-    if (!ObjectId.isValid(id)) {
-        return null;
-    }
-
+export const findById = async (_id: ObjectId): Promise<WithAudit<Tag> | null> => {
     const tagCollection = await getCollection<WithAudit<Tag>>(TAG_COLLECTION);
-    const tag = await tagCollection.findOne({ _id: new ObjectId(id) });
+    const tag = await tagCollection.findOne({ _id });
 
     if (tag) {
         const { _id, ...rest } = tag;
@@ -56,7 +52,7 @@ export const update = async ({ _id, ...rest }: Update<Tag>): Promise<UpdateResul
 
 export const updateByOwner = async (owner: string, { _id, ...rest }: Update<Tag>): Promise<UpdateResult> => {
     const tagCollection = await getCollection<Tag>(TAG_COLLECTION);
-    return await tagCollection.updateOne({ owner, _id }, { $set: rest });
+    return await tagCollection.updateOne({ _id, createdBy: owner }, { $set: rest });
 }
 
 export const deleteById = async (_id: ObjectId): Promise<DeleteResult> => {
@@ -66,5 +62,5 @@ export const deleteById = async (_id: ObjectId): Promise<DeleteResult> => {
 
 export const deleteByOwnerAndId = async (owner: string, _id: ObjectId): Promise<DeleteResult> => {
     const tagCollection = await getCollection<Tag>(TAG_COLLECTION);
-    return await tagCollection.deleteOne({ owner, _id });
+    return await tagCollection.deleteOne({ _id, createdBy: owner });
 }
