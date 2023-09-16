@@ -7,8 +7,10 @@ import { CreatePostSchema, UpdatePostSchema } from '../validations/post-schema';
 
 export async function find(req: Request, res: Response, next: NextFunction) {
     try {
-        const posts = await postService.find()
-        res.status(200).send(posts);
+        const keyword = req.query.keyword as string || '';
+        const page = req.query.page as string || '1';
+        const pageable = await postService.find(keyword, parseInt(page));
+        res.status(200).send(pageable);
     } catch (error) {
         next(error);
     }

@@ -9,8 +9,6 @@ export const ipWhitelistHandler = async (req: Request, res: Response, next: Next
     const ip = requestIp.getClientIp(req);
 
     if (ip && (await getWhitelist()).has(ip)) {
-
-        console.log(req.headers);
         logger.log({
             request: true,
             level: 'debug',

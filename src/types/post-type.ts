@@ -1,9 +1,3 @@
-export type PostContent = {
-    title: string,
-    description: string,
-    content: string
-}
-
 export type Post = {
     slug: string,
     tags: String[],
@@ -18,5 +12,6 @@ export type Post = {
     content: {
         id: string,
         en: string
-    }
+    },
+    score?: any
 }

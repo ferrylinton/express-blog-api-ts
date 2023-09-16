@@ -1,8 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
 import multer, { MulterError, StorageEngine } from "multer";
 import { AppStorageEngine } from '../util/app-storate-engine';
-import { getImagesBucket } from '../services/image-service';
-
 
 
 const MAX_FILE_SIZE = 3 * 1024 * 1024;
@@ -11,7 +9,7 @@ let storage: StorageEngine;
 
 async function getStorage() {
     if (storage === null || storage === undefined) {
-        storage = new AppStorageEngine(await getImagesBucket());
+        storage = new AppStorageEngine();
     }
 
     return storage;

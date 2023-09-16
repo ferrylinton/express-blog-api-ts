@@ -1,3 +1,7 @@
+import { POST_COLLECTION } from "../../configs/db-constant";
+import { getCollection } from "../../configs/mongodb";
+import { WithAudit } from "../../types/common-type";
+import { Post } from "../../types/post-type";
 import { initAuthorityData } from "./authority-data";
 import { initImageData } from "./image-data";
 import { initPostData } from "./post-data";
@@ -10,7 +14,11 @@ import { initWhitelistData } from "./whitelist-data";
 
     try {
 
-        await initImageData();
+        const postCollection = await getCollection(POST_COLLECTION);
+       // const result = await postCollection.createIndex( { "title.id": "text", "title.en": "text"} );
+        //console.log(result);
+        const result = postCollection.find({$text:{$search:"love"}});
+        console.log(result);
 
     } catch (error: any) {
         console.log(error);

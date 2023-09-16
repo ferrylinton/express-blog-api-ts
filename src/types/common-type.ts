@@ -2,6 +2,7 @@ import { ObjectId } from "mongodb";
 
 export type WithAudit<T> = {
     id?: ObjectId,
+    _id?: ObjectId,
     createdBy: string,
     updatedBy?: string,
     createdAt: Date,
@@ -20,3 +21,13 @@ export type Update<T> = {
     updatedBy: string,
     updatedAt: Date
 } & Partial<T>;
+
+export type Pageable<T> = {
+    data: Array<WithAudit<T>>,
+    pagination: {
+        total: number,
+        page?: number,
+        pageSize?: number
+    },
+    keyword?: string
+}

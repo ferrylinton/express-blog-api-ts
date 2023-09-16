@@ -85,7 +85,6 @@ export async function deleteById(req: Request, res: Response, next: NextFunction
 
         res.status(200).json({ message: 'Data is deleted' });
     } catch (error) {
-        console.log(error);
         next(error);
     }
 };

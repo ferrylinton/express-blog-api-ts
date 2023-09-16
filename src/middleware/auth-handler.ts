@@ -1,9 +1,10 @@
 import { NextFunction, Request, Response } from 'express';
 import * as authService from '../services/auth-service';
 import * as redisService from '../services/redis-service';
+import { AuthData } from '../types/auth-data-type';
 
 const PUBLIC_API_ALL_METHOD = ['/', '/auth/token']
-const PUBLIC_API_GET_METHOD = ['/api/images']
+const PUBLIC_API_GET_METHOD = ['/api/images', '/api/posts', '/api/tags']
 
 export const authHandler = async (req: Request, res: Response, next: NextFunction) => {
     
@@ -22,7 +23,6 @@ export const authHandler = async (req: Request, res: Response, next: NextFunctio
 
                 if (authDataString) {
                     const authData: AuthData = JSON.parse(authDataString as string);
-                    console.log(authData);
                     if (authData.username) {
                         req.auth = authData;
                         next();
