@@ -4,6 +4,7 @@ import { IMAGE_FILES_COLLECTION } from "../configs/db-constant";
 import { Image, ImageMetadata, MulterCallback } from "../types/image-type";
 import { WithAudit } from "../types/common-type";
 import { IMAGE_BUCKET_NAME, IMAGE_MIME_TYPES } from "../configs/image-constant";
+import { Readable } from "stream";
 
 let bucket: GridFSBucket;
 
@@ -46,20 +47,19 @@ export const findByFilename = async (filename: string): Promise<WithAudit<Image>
     return null;
 }
 
-export const create = async (owner: string, file: Express.Multer.File, callback: MulterCallback) => {
-    const bucket = await getImagesBucket();
-    const arr = file.originalname.split('.');
+export const create = (bucket: GridFSBucket, createdBy: string, originalName: string, contentType: string, stream: Readable, callback: MulterCallback) => {
+    const arr = originalName.split('.');
 
-    if (!IMAGE_MIME_TYPES.hasOwnProperty(file.mimetype)) {
+    if (!IMAGE_MIME_TYPES.hasOwnProperty(contentType)) {
         return callback(new Error('Wrong file type'));
     }
 
     const _id = new ObjectId();
-    const filename = `${arr.length > 0 ? arr[0] : 'unknown'}.${owner}.${IMAGE_MIME_TYPES[file.mimetype as keyof typeof IMAGE_MIME_TYPES]}`;
+    const filename = `${arr.length > 0 ? arr[0] : 'unknown'}.${createdBy}.${IMAGE_MIME_TYPES[contentType as keyof typeof IMAGE_MIME_TYPES]}`;
     const metadata = {
-        createdBy: owner,
-        originalName: file.originalname,
-        contentType: file.mimetype
+        createdBy,
+        originalName,
+        contentType
     }
 
     const cursor = bucket.find({ filename, metadata });
@@ -68,11 +68,11 @@ export const create = async (owner: string, file: Express.Multer.File, callback:
             if (isExist) {
                 return callback(new Error('Image is already exist'));
             } else {
-                file.stream.pipe(bucket.openUploadStreamWithId(_id, filename, { metadata }))
+                stream.pipe(bucket.openUploadStreamWithId(_id, filename, { metadata }))
                     .on('error', function (error) {
                         callback(error);
                     }).on('finish', async function () {
-                        callback(null, { filename });
+                        callback(null, { filename, originalname: metadata.originalName });
                     });
             }
         })
@@ -83,9 +83,9 @@ export const deleteById = async (_id: ObjectId): Promise<void> => {
     await bucket.delete(_id);
 }
 
-export const deleteByOwnerAndId = async (owner: string, _id: ObjectId): Promise<WithAudit<Image> | null> => {
+export const deleteByOwnerAndId = async (createdBy: string, _id: ObjectId): Promise<WithAudit<Image> | null> => {
     const imageCollection = await getCollection<WithAudit<Image>>(IMAGE_FILES_COLLECTION);
-    const image = await imageCollection.findOne({ _id, "metadata.createdBy": owner });
+    const image = await imageCollection.findOne({ _id, "metadata.createdBy": createdBy });
 
     if (image) {
         const { _id, ...rest } = image;

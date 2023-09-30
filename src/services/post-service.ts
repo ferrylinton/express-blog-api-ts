@@ -7,22 +7,12 @@ import { Create, Pageable, Update, WithAudit } from "../types/common-type";
 import { Post } from "../types/post-type";
 
 
-export const find = async (keyword: string, page: number) => {
+export const find = async (tag: string | null, keyword: string | null, page: number) => {
     const postCollection = await getCollection(POST_COLLECTION);
-    const regex = new RegExp(keyword, 'i');
 
     const pipeline = [
         {
-            '$match': {
-                '$or': [
-                    { 'title.id': regex },
-                    { 'title.en': regex },
-                    { 'description.id': regex },
-                    { 'description.en': regex },
-                    { 'content.id': regex },
-                    { 'content.en': regex }
-                ]
-            }
+            '$match': {}
         },
         {
             '$project': {
@@ -52,11 +42,49 @@ export const find = async (keyword: string, page: number) => {
         }
     ];
 
-    if (!keyword || keyword.trim().length < 3) {
-        pipeline.shift();
+    if (tag && keyword) {
+        const regex = new RegExp(keyword, 'i');
+        pipeline[0]['$match'] = {
+            $and: [
+                {
+                    tags: { "$in": [tag] }
+                },
+                {
+                    '$or': [
+                        { 'title.id': regex },
+                        { 'title.en': regex },
+                        { 'description.id': regex },
+                        { 'description.en': regex },
+                        { 'content.id': regex },
+                        { 'content.en': regex }
+                    ]
+                }
+            ]
+        }
+
+        logger.info('POST.find : ' + JSON.stringify(pipeline).replaceAll('{}', regex.toString()));
+    } else if (!tag && keyword) {
+        const regex = new RegExp(keyword, 'i');
+        pipeline[0]['$match'] = {
+            '$or': [
+                { 'title.id': regex },
+                { 'title.en': regex },
+                { 'description.id': regex },
+                { 'description.en': regex },
+                { 'content.id': regex },
+                { 'content.en': regex }
+            ]
+        }
+
+        logger.info('POST.find : ' + JSON.stringify(pipeline).replaceAll('{}', regex.toString()));
+    } else if (tag && !keyword) {
+        pipeline[0]['$match'] = {
+            tags: { "$in": [tag] }
+        }
         logger.info('POST.find : ' + JSON.stringify(pipeline));
     } else {
-        logger.info('POST.find : ' + JSON.stringify(pipeline).replaceAll('{}', regex.toString()));
+        pipeline.shift();
+        logger.info('POST.find : ' + JSON.stringify(pipeline));
     }
 
     const arr = await postCollection.aggregate<Pageable<Omit<Post, "content">>>(pipeline).toArray();
@@ -70,16 +98,33 @@ export const find = async (keyword: string, page: number) => {
         return arr[0];
     }
 
-    return null;
+    return {
+        "data": [],
+        "pagination": {
+            "total": 0,
+            "page": 1,
+            "pageSize": 10
+        },
+        keyword,
+        tag
+    };
 }
 
 export const findById = async (id: string): Promise<WithAudit<Post> | null> => {
-    if (!ObjectId.isValid(id)) {
-        return null;
-    }
-
     const postCollection = await getCollection<WithAudit<Post>>(POST_COLLECTION);
     const post = await postCollection.findOne({ _id: new ObjectId(id) });
+
+    if (post) {
+        const { _id, ...rest } = post;
+        return { id: _id, ...rest };
+    }
+
+    return null;
+}
+
+export const findBySlug = async (slug: string): Promise<WithAudit<Post> | null> => {
+    const postCollection = await getCollection<WithAudit<Post>>(POST_COLLECTION);
+    const post = await postCollection.findOne({ slug });
 
     if (post) {
         const { _id, ...rest } = post;

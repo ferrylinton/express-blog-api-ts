@@ -1,5 +1,5 @@
-import * as auth from "../../configs/auth-constant";
-import * as userService from "../../services/user-service";
+import * as auth from "../../src/configs/auth-constant";
+import * as userService from "../../src/services/user-service";
 
 export const initUserData = async () => {
     try {

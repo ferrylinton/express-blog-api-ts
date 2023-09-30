@@ -1,29 +1,27 @@
 import { Db } from "mongodb";
-import { AUTHORITY_COLLECTION } from "../../configs/db-constant";
+import { TODO_COLLECTION } from "../../src/configs/db-constant";
 
 
-export const createAuthoritySchema = async (db: Db) => {
+
+export const createTodoCollection = async (db: Db) => {
     try {
-        await db.createCollection(AUTHORITY_COLLECTION, {
+        await db.createCollection(TODO_COLLECTION, {
             "validator": {
                 $jsonSchema: {
                     "bsonType": "object",
+                    "title": "TODO_COLLECTION",
                     "additionalProperties": false,
                     "properties": {
                         "_id": {
                             "bsonType": "objectId"
                         },
-                        "code": {
+                        "task": {
                             "bsonType": "string",
-                            "minLength": 2,
-                            "maxLength": 5,
                             "description": "Must be a string and unique"
                         },
-                        "description": {
-                            "bsonType": "string",
-                            "minLength": 2,
-                            "maxLength": 100,
-                            "description": "Must be a string and unique"
+                        "done": {
+                            "bsonType": "bool",
+                            "description": "It can only be true or false"
                         },
                         "createdBy": {
                             "bsonType": "string"
@@ -38,7 +36,7 @@ export const createAuthoritySchema = async (db: Db) => {
                             "bsonType": "date"
                         }
                     },
-                    "required": ["code", "description", "createdAt", "createdBy"]
+                    "required": ["task", "done", "createdAt", "createdBy"]
                 }
             },
             "validationLevel": "strict",
@@ -46,10 +44,9 @@ export const createAuthoritySchema = async (db: Db) => {
         });
 
         await db
-            .collection(AUTHORITY_COLLECTION)
+            .collection(TODO_COLLECTION)
             .createIndexes([
-                { "name": "authority_code_unique", "unique": true, "collation": { "locale": "en_US", "strength": 2 }, "key": { "code": 1 } },
-                { "name": "authority_description_unique", "unique": true, "collation": { "locale": "en_US", "strength": 2 }, "key": { "description": 1 } }
+                { "name": "todo_unique", "unique": true, "collation": { "locale": "en_US", "strength": 2 }, "key": { "task": 1, "createdBy": 1 } }
             ]);
 
     } catch (error) {

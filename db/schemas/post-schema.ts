@@ -1,5 +1,5 @@
 import { Db } from "mongodb";
-import { POST_COLLECTION } from "../../configs/db-constant";
+import { POST_COLLECTION } from "../../src/configs/db-constant";
 
 
 

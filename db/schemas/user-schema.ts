@@ -1,5 +1,5 @@
 import { Db } from "mongodb";
-import { USER_COLLECTION } from "../../configs/db-constant";
+import { USER_COLLECTION } from "../../src/configs/db-constant";
 
 
 

@@ -7,10 +7,22 @@ import { CreatePostSchema, UpdatePostSchema } from '../validations/post-schema';
 
 export async function find(req: Request, res: Response, next: NextFunction) {
     try {
-        const keyword = req.query.keyword as string || '';
-        const page = req.query.page as string || '1';
-        const pageable = await postService.find(keyword, parseInt(page));
-        res.status(200).send(pageable);
+        if (req.query.slug) {
+            const post = await postService.findBySlug(req.query.slug as string);
+
+            if (post) {
+                res.status(200).json(post);
+            } else {
+                res.status(404).json({ message: DATA_IS_NOT_FOUND });
+            }
+        } else {
+            const tag = req.query.tag as string || null;
+            const keyword = req.query.keyword as string || null;
+            const page = req.query.page as string || '1';
+            const pageable = await postService.find(tag, keyword, parseInt(page));
+            res.status(200).send(pageable);
+        }
+
     } catch (error) {
         next(error);
     }

@@ -1,11 +1,10 @@
 import { Db } from "mongodb";
-import { TAG_COLLECTION } from "../../configs/db-constant";
+import { AUTHORITY_COLLECTION } from "../../src/configs/db-constant";
 
 
-
-export const createTagSchema = async (db: Db) => {
+export const createAuthoritySchema = async (db: Db) => {
     try {
-        await db.createCollection(TAG_COLLECTION, {
+        await db.createCollection(AUTHORITY_COLLECTION, {
             "validator": {
                 $jsonSchema: {
                     "bsonType": "object",
@@ -14,31 +13,16 @@ export const createTagSchema = async (db: Db) => {
                         "_id": {
                             "bsonType": "objectId"
                         },
-                        "name": {
+                        "code": {
                             "bsonType": "string",
                             "minLength": 2,
-                            "maxLength": 30,
+                            "maxLength": 5,
                             "description": "Must be a string and unique"
                         },
                         "description": {
-                            "bsonType": "object",
-                            "properties": {
-                                "id": {
-                                    "bsonType": "string",
-                                    "minLength": 2,
-                                    "description": "Must be a string and unique"
-                                },
-                                "en": {
-                                    "bsonType": "string",
-                                    "minLength": 2,
-                                    "description": "Must be a string and unique"
-                                }
-                            },
-                            "required": ["id", "en"]
-                        },
-                        "logo": {
                             "bsonType": "string",
                             "minLength": 2,
+                            "maxLength": 100,
                             "description": "Must be a string and unique"
                         },
                         "createdBy": {
@@ -54,7 +38,7 @@ export const createTagSchema = async (db: Db) => {
                             "bsonType": "date"
                         }
                     },
-                    "required": ["name", "description", "logo", "createdAt", "createdBy"]
+                    "required": ["code", "description", "createdAt", "createdBy"]
                 }
             },
             "validationLevel": "strict",
@@ -62,9 +46,10 @@ export const createTagSchema = async (db: Db) => {
         });
 
         await db
-            .collection(TAG_COLLECTION)
+            .collection(AUTHORITY_COLLECTION)
             .createIndexes([
-                { "name": "tag_name_unique", "unique": true, "collation": { "locale": "en_US", "strength": 2 }, "key": { "name": 1 } }
+                { "name": "authority_code_unique", "unique": true, "collation": { "locale": "en_US", "strength": 2 }, "key": { "code": 1 } },
+                { "name": "authority_description_unique", "unique": true, "collation": { "locale": "en_US", "strength": 2 }, "key": { "description": 1 } }
             ]);
 
     } catch (error) {

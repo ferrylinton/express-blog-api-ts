@@ -1,5 +1,5 @@
 import { Db } from "mongodb";
-import { IMAGE_FILES_CHUNKS, IMAGE_FILES_COLLECTION } from "../../configs/db-constant";
+import { IMAGE_FILES_CHUNKS, IMAGE_FILES_COLLECTION } from "../../src/configs/db-constant";
 
 
 

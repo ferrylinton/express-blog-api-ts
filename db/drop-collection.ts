@@ -1,12 +1,12 @@
-import { MONGODB_DATABASE } from "../../configs/env-constant";
-import { mongoClient } from "../../configs/mongodb";
-import { AUTHORITY_COLLECTION } from "../../configs/db-constant";
-import { IMAGE_FILES_CHUNKS, IMAGE_FILES_COLLECTION } from "../../configs/db-constant";
-import { POST_COLLECTION } from "../../configs/db-constant";
-import { TAG_COLLECTION } from "../../configs/db-constant";
-import { TODO_COLLECTION } from "../../configs/db-constant";
-import { USER_COLLECTION } from "../../configs/db-constant";
-import { WHITELIST_COLLECTION } from "../../configs/db-constant";
+import { MONGODB_DATABASE } from "../src/configs/env-constant";
+import { mongoClient } from "../src/configs/mongodb";
+import { AUTHORITY_COLLECTION } from "../src/configs/db-constant";
+import { IMAGE_FILES_CHUNKS, IMAGE_FILES_COLLECTION } from "../src/configs/db-constant";
+import { POST_COLLECTION } from "../src/configs/db-constant";
+import { TAG_COLLECTION } from "../src/configs/db-constant";
+import { TODO_COLLECTION } from "../src/configs/db-constant";
+import { USER_COLLECTION } from "../src/configs/db-constant";
+import { WHITELIST_COLLECTION } from "../src/configs/db-constant";
 
 
 (async () => {
@@ -64,7 +64,11 @@ import { WHITELIST_COLLECTION } from "../../configs/db-constant";
 
 
     } catch (error) {
-        console.error(error);
+        console.log(error);
+    } finally {
+        setTimeout(function () {
+            process.exit();
+        }, 2000);
     }
 
 })()

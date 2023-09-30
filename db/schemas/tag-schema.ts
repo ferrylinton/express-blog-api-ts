@@ -1,27 +1,24 @@
 import { Db } from "mongodb";
-import { TODO_COLLECTION } from "../../configs/db-constant";
+import { TAG_COLLECTION } from "../../src/configs/db-constant";
 
 
 
-export const createTodoCollection = async (db: Db) => {
+export const createTagSchema = async (db: Db) => {
     try {
-        await db.createCollection(TODO_COLLECTION, {
+        await db.createCollection(TAG_COLLECTION, {
             "validator": {
                 $jsonSchema: {
                     "bsonType": "object",
-                    "title": "TODO_COLLECTION",
                     "additionalProperties": false,
                     "properties": {
                         "_id": {
                             "bsonType": "objectId"
                         },
-                        "task": {
+                        "name": {
                             "bsonType": "string",
+                            "minLength": 2,
+                            "maxLength": 30,
                             "description": "Must be a string and unique"
-                        },
-                        "done": {
-                            "bsonType": "bool",
-                            "description": "It can only be true or false"
                         },
                         "createdBy": {
                             "bsonType": "string"
@@ -36,7 +33,7 @@ export const createTodoCollection = async (db: Db) => {
                             "bsonType": "date"
                         }
                     },
-                    "required": ["task", "done", "createdAt", "createdBy"]
+                    "required": ["name", "createdAt", "createdBy"]
                 }
             },
             "validationLevel": "strict",
@@ -44,9 +41,9 @@ export const createTodoCollection = async (db: Db) => {
         });
 
         await db
-            .collection(TODO_COLLECTION)
+            .collection(TAG_COLLECTION)
             .createIndexes([
-                { "name": "todo_unique", "unique": true, "collation": { "locale": "en_US", "strength": 2 }, "key": { "task": 1, "createdBy": 1 } }
+                { "name": "tag_name_unique", "unique": true, "collation": { "locale": "en_US", "strength": 2 }, "key": { "name": 1 } }
             ]);
 
     } catch (error) {

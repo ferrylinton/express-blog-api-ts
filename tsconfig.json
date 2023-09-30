@@ -2,15 +2,15 @@
   "compilerOptions": {
     "target": "es6",
     "module": "commonjs",
-    "rootDir": "./src",
+    "rootDirs": ["./src", "./db"],
     "outDir": "./dist",
     "esModuleInterop": true,
     "strict": true,
     "sourceMap": false,
     "lib": ["ES2021.String"]
   },
-  "include": ["./src/**/*"],
-  "exclude": ["./src/db"],
+  "include": ["./src/**/*", "./db/**/*"],
+  "exclude": ["db"],
   "ts-node": {
     "transpileOnly": true,
     "compilerOptions": {

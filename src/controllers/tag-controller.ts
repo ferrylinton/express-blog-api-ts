@@ -3,6 +3,7 @@ import { DeleteResult, ObjectId, UpdateResult } from 'mongodb';
 import { ACCESS_FORBIDDEN, DATA_IS_DELETED, DATA_IS_NOT_FOUND, DATA_IS_UPDATED } from '../configs/message-constant';
 import * as tagService from '../services/tag-service';
 import { CreateTagSchema, UpdateTagSchema } from '../validations/tag-schema';
+import { createSlug } from '../util/string-util';
 
 
 export async function find(req: Request, res: Response, next: NextFunction) {
@@ -37,9 +38,10 @@ export async function create(req: Request, res: Response, next: NextFunction) {
         const validation = CreateTagSchema.safeParse(req.body);
 
         if (validation.success) {
+            const name = createSlug(validation.data.name)
             const createdAt = new Date();
             const createdBy = req.auth.username as string;
-            const tag = await tagService.create({ createdBy, createdAt, ...validation.data });
+            const tag = await tagService.create({name, createdBy, createdAt});
             res.status(201).json(tag);
         } else {
             const { fieldErrors: errors } = validation.error.flatten();

@@ -38,6 +38,8 @@ export async function findByFilename(req: Request, res: Response, next: NextFunc
         const image = await imageService.findByFilename(req.params.filename);
 
         if (image) {
+            res.setHeader('Cross-Origin-Opener-Policy', "cross-origin");
+            res.setHeader('Cross-Origin-Resource-Policy', "cross-origin");
             res.setHeader('Content-Type', image.metadata.contentType);
             res.setHeader('Content-Length', image.length || '0');
             const bucket = await imageService.getImagesBucket();

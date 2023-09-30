@@ -1,5 +1,5 @@
 import { address } from 'ip';
-import * as whitelistService from "../../services/whitelist-service";
+import * as whitelistService from "../../src/services/whitelist-service";
 
 export const initWhitelistData = async () => {
     try {

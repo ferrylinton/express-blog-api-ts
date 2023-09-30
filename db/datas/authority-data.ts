@@ -1,5 +1,5 @@
-import * as auth from "../../configs/auth-constant";
-import * as authorityService from "../../services/authority-service";
+import * as auth from "../../src/configs/auth-constant";
+import * as authorityService from "../../src/services/authority-service";
 
 
 export const initAuthorityData = async () => {

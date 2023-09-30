@@ -1,5 +1,5 @@
 import { Db } from "mongodb";
-import { WHITELIST_COLLECTION } from "../../configs/db-constant";
+import { WHITELIST_COLLECTION } from "../../src/configs/db-constant";
 
 
 
