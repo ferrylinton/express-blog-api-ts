@@ -26,6 +26,7 @@ export type Pageable<T> = {
     data: Array<WithAudit<T>>,
     pagination: {
         total: number,
+        totalPage: number,
         page?: number,
         pageSize?: number
     },

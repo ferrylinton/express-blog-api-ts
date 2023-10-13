@@ -15,41 +15,43 @@ React adalah librari javascript yang digunakan untuk membangun antar muka aplika
 
 1. Buat Aplikasi React
 
-    ```
+    ```shell
     npx create-react-app tailwind-ts --template typescript
     ```
 
     Masuk ke dalam folder
-    ```
+
+    ```shell
     cd tailwind-ts
     ```
 
     Lihat kode dengan Visual Studio Code
-    ```
+
+    ```shell
     code .
     ```
 
     Jika mendapatkan kesalahan ini
 
-    ```
+    ```shell
     'create-react-app' is not recognized as an internal or external command
     ```
     Jalankan perintah ini
 
-    ```
+    ```shell
     npx clear-npx-cache
     ```
     
 
 1. Instal librari
 
-    ```
+    ```shell
     npm install
     ```
 
 1. Jalankan aplikasi
 
-    ```
+    ```shell
     npm start
     ```
 
@@ -59,19 +61,19 @@ React adalah librari javascript yang digunakan untuk membangun antar muka aplika
 
 1. Instal librari Tailwind CSS
 
-    ```
+    ```shell
     npm install -D tailwindcss postcss autoprefixer
     ```
 
 1. Buat konfigurasi Tailwind
 
-    ```
+    ```shell
     npx tailwindcss init -p
     ```
 
 1. Ubah ***tailwind.config.js***
 
-    ```
+    ```js
     /** @type {import('tailwindcss').Config} */
     export default {
     content: [
@@ -87,7 +89,7 @@ React adalah librari javascript yang digunakan untuk membangun antar muka aplika
 
 1. Ubah ***src/index.css***
 
-    ```
+    ```css
     @tailwind base;
     @tailwind components;
     @tailwind utilities;
@@ -95,7 +97,7 @@ React adalah librari javascript yang digunakan untuk membangun antar muka aplika
 
 1. Ubah ***src/App.tsx***
 
-    ```
+    ```js
     function App() {
 
     return (

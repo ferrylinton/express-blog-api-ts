@@ -16,10 +16,17 @@ const replaceUrl = (filePath: string) => {
     })
 }
 
+const padWithLeadingZeros = (num: number) => {
+    return String(num).padStart(5, '0');
+}
+
 export const initPostData = async () => {
     try {
-        const arr = ['copy01', 'copy02', 'copy03', 'copy04', 'copy05', 'copy06', 'copy07', 'copy08', 'copy09', 'copy10',
-            'copy11', 'copy12', 'copy13', 'copy14', 'copy15', 'copy16', 'copy17', 'copy18', 'copy19', 'copy10'];
+        const arr: string[] = [];
+
+        for (let i = 0; i < 100; i++) {
+            arr.push(padWithLeadingZeros(i))
+        }
 
         arr.forEach(async txt => {
             const slug = "react-tailwind-setup" + "-" + txt;

@@ -16,29 +16,29 @@ React is a javascript library used to build application interfaces. Tailwind CSS
 
 1. Buat Aplikasi React
 
-    ```
+    ```console
     npm create vite@latest tailwind-vite-ts -- --template react-ts
     ```
 
     Masuk ke dalam folder
-    ```
+    ```console
     cd tailwind-vite-ts
     ```
 
     Lihat kode dengan Visual Studio Code
-    ```
+    ```console
     code .
     ```
 
 1. Instal librari
 
-    ```
+    ```console
     npm install
     ```
 
 1. Jalankan aplikasi
 
-    ```
+    ```console
     npm run dev
     ```
 
@@ -51,19 +51,19 @@ React is a javascript library used to build application interfaces. Tailwind CSS
 
 1. Instal librari Tailwind CSS
 
-    ```
+    ```console
     npm install -D tailwindcss postcss autoprefixer
     ```
 
 1. Buat konfigurasi Tailwind
 
-    ```
+    ```console
     npx tailwindcss init -p
     ```
 
 1. Ubah ***tailwind.config.js***
 
-    ```
+    ```js
     /** @type {import('tailwindcss').Config} */
     export default {
     content: [
@@ -79,7 +79,7 @@ React is a javascript library used to build application interfaces. Tailwind CSS
 
 1. Ubah ***src/index.css***
 
-    ```
+    ```css
     @tailwind base;
     @tailwind components;
     @tailwind utilities;
@@ -87,7 +87,7 @@ React is a javascript library used to build application interfaces. Tailwind CSS
 
 1. Ubah ***src/App.tsx***
 
-    ```
+    ```js
     function App() {
 
     return (
@@ -113,7 +113,7 @@ React is a javascript library used to build application interfaces. Tailwind CSS
 
 1. Tes kode untuk produksi di lokal
 
-    ```
+    ```console
     npm run build
     npm run preview
     ```
@@ -124,12 +124,13 @@ React is a javascript library used to build application interfaces. Tailwind CSS
 
     Tambahkan skrip ini di ***package.json***
 
-    ```
+    ```console
     "serve": "npx serve -p 4173 -s dist"
     ```
 
     Jalankan skrip ini
-    ```
+    
+    ```console
     npm run build
     npm run serve
     ```

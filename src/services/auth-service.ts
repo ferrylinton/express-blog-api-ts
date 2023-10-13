@@ -19,10 +19,28 @@ export const authenticate = async ({ username, password }: AuthenticateType) => 
 }
 
 export const generateToken = async ({ username, authorities }: User, client: ClientData) => {
-    const token = uid(32);
+    const now = new Date();
+    const token = uid(32)+ '-' + now.getTime();
     const clientData = { username, authorities, ...client };
-    await redisService.saveToken(username, token, JSON.stringify(clientData));
-    return { token, ...clientData };
+    const ttl = await redisService.saveToken(username, token, JSON.stringify(clientData));
+    
+    if(ttl){
+        return { token, ttl, ...clientData };
+    }else{
+        return null;
+    }
+}
+
+export const deleteToken = async(token: string) => {
+    return await redisService.deleteToken(token);
+}
+
+export const getAuthData = async(token: string) => {
+    return await redisService.getAuthData(token);
+}
+
+export const getAllTokens = async(username: string) => {
+    return await redisService.getAllTokens(username);
 }
 
 export const getTokenFromRequest = (req: Request) => {
@@ -43,4 +61,8 @@ export const getClientInfo = (req: Request) => {
     }
 
     return JSON.stringify(clientInfo);
+}
+
+export const deleteTokenByUsername = async (username: string) => {
+    return await redisService.deleteTokenByUsername(username);
 }

@@ -19,17 +19,11 @@ export const authHandler = async (req: Request, res: Response, next: NextFunctio
 
         if (token) {
             try {
-                const authDataString = await redisService.findToken(token);
+                const authData = await redisService.getAuthData(token);
 
-                if (authDataString) {
-                    const authData: AuthData = JSON.parse(authDataString as string);
-                    if (authData.username) {
-                        req.auth = authData;
-                        next();
-                    } else {
-                        return res.status(401).json({ message: "Invalid token" });
-                    }
-
+                if (authData && authData.username) {
+                    req.auth = authData;
+                    next();
                 } else {
                     return res.status(401).json({ message: "Invalid token" });
                 }

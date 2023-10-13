@@ -8,6 +8,7 @@ import { Post } from "../types/post-type";
 
 
 export const find = async (tag: string | null, keyword: string | null, page: number) => {
+    page = page <= 0 ? 1 : page;
     const postCollection = await getCollection(POST_COLLECTION);
 
     const pipeline = [
@@ -89,12 +90,14 @@ export const find = async (tag: string | null, keyword: string | null, page: num
 
     const arr = await postCollection.aggregate<Pageable<Omit<Post, "content">>>(pipeline).toArray();
     if (arr.length) {
-        if (keyword && keyword.trim().length > 2) {
+        if (keyword) {
             arr[0].keyword = keyword;
         }
 
         arr[0].pagination.page = page;
+        arr[0].pagination.totalPage = Math.ceil(arr[0].pagination.total / PAGE_SIZE)
         arr[0].pagination.pageSize = PAGE_SIZE;
+
         return arr[0];
     }
 
@@ -102,6 +105,7 @@ export const find = async (tag: string | null, keyword: string | null, page: num
         "data": [],
         "pagination": {
             "total": 0,
+            "totalPage": 0,
             "page": 1,
             "pageSize": 10
         },
