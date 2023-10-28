@@ -1,3 +1,13 @@
 {
-    "home": "Home"
+    "home": "Home",
+
+    "code.required": "Code is required",
+    "code.string": "Code must be a string",
+    "code.min.3": "Code must be 3 or more characters long",
+    "code.max.5": "Code must be 5 or fewer characters long",
+
+    "description.required": "Description is required",
+    "description.string": "Description must be a string",
+    "description.min.10": "Description must be 10 or more characters long",
+    "description.max.100": "Description must be 100 or fewer characters long"
 }

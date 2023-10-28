@@ -44,8 +44,7 @@ export async function create(req: Request, res: Response, next: NextFunction) {
             const tag = await tagService.create({name, createdBy, createdAt});
             res.status(201).json(tag);
         } else {
-            const { fieldErrors: errors } = validation.error.flatten();
-            res.status(400).send({ errors });
+            res.status(400).send(validation.error.issues);
         }
 
     } catch (error) {
@@ -81,8 +80,7 @@ export async function update(req: Request, res: Response, next: NextFunction) {
                 ? res.status(200).json({ message: DATA_IS_UPDATED })
                 : res.status(404).json({ message: DATA_IS_NOT_FOUND });
         } else {
-            const { fieldErrors: errors } = validation.error.flatten();
-            res.status(400).send({ errors });
+            res.status(400).send(validation.error.issues);
         }
     } catch (error) {
         next(error);

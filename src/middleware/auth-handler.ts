@@ -1,31 +1,41 @@
 import { NextFunction, Request, Response } from 'express';
 import * as authService from '../services/auth-service';
 import * as redisService from '../services/redis-service';
-import { AuthData } from '../types/auth-data-type';
 
 const PUBLIC_API_ALL_METHOD = ['/', '/auth/token']
 const PUBLIC_API_GET_METHOD = ['/api/images', '/api/posts', '/api/tags']
 
 export const authHandler = async (req: Request, res: Response, next: NextFunction) => {
-    
+
     if (PUBLIC_API_ALL_METHOD.indexOf(req.path) === 1 ||
         (req.method === 'GET' && checkIfStringStartsWith(req.path, PUBLIC_API_GET_METHOD))) {
-
-        // Public API
+        // Public API, no authentication
         next();
-
     } else {
         const token = authService.getTokenFromRequest(req);
 
         if (token) {
             try {
-                const authData = await redisService.getAuthData(token);
 
-                if (authData && authData.username) {
+                const authData = await redisService.getAuthData(token);
+                console.log('############3 authHandler....')
+                console.log(req.url);
+                console.log(JSON.stringify(req.client));
+                console.log(JSON.stringify(authData));
+
+                if (authData) {
+                    if (req.client.clientIp !== authData.clientIp) {
+                        return res.status(401).json({ message: "Invalid token, wrong client ip" });
+                    }
+
+                    if (req.client.userAgent !== authData.userAgent) {
+                        return res.status(401).json({ message: "Invalid token, wrong user agent" });
+                    }
+
                     req.auth = authData;
                     next();
                 } else {
-                    return res.status(401).json({ message: "Invalid token" });
+                    return res.status(401).json({ message: "Invalid token, token is not found" });
                 }
             } catch (err: any) {
                 return res.status(401).json({

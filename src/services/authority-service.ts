@@ -8,7 +8,7 @@ import { Create, Update, WithAudit } from "../types/common-type";
 
 export const find = async (): Promise<Array<WithAudit<Authority>>> => {
     const authorityCollection = await getCollection<WithAudit<Authority>>(AUTHORITY_COLLECTION);
-    const cursor = authorityCollection.find().sort({ 'code': -1 });
+    const cursor = authorityCollection.find().sort({ 'code': 1, 'name': 1 });
 
     const authorities: Array<WithAudit<Authority>> = [];
     for await (const doc of cursor) {
@@ -46,7 +46,7 @@ export const create = async (authority: Create<Authority>): Promise<WithAudit<Au
     });
 
     if (current) {
-        throw new BadRequestError(400, `Authority [code='${authority.code}'] or [description='${authority.description}'] is already exist`);
+        throw new BadRequestError(409, `Authority [code='${authority.code}'] or [description='${authority.description}'] is already exist`);
     }
 
     const insertOneResult: InsertOneResult<WithAudit<Authority>> = await authorityCollection.insertOne(authority);

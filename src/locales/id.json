@@ -1,3 +1,14 @@
 {
-    "home": "Beranda"
+	"home": "Beranda",
+	"code.required": "Kode harus ada",
+	"code.string": "Kode harus teks",
+	"code.min.3": "Kode minimal 3 karakter",
+	"code.max.5": "Kode maksimal 5 karakter",
+	"description.required": "Keterangan harus ada",
+	"description.string": "Keterangan harus teks",
+	"description.min.10": "Keterangan minimal 3 karakter",
+	"description.max.100": "Keterangan maksimal 100 karakter",
+	"String must contain at least 3 character(s)": "String must contain at least 3 character(s)",
+	"String must contain at least 10 character(s)": "String must contain at least 10 character(s)",
+	"String must contain at most 5 character(s)": "String must contain at most 5 character(s)"
 }

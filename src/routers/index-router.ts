@@ -1,14 +1,14 @@
 import { Router } from 'express';
 import requestIp from 'request-ip';
-import parser from 'ua-parser-js';
 
 const router = Router();
 
 router.get('/', (req, res) => {
-    const userAgent = parser(req.headers['user-agent']);
+    const userAgent = req.headers['user-agent'];
+    const hostIp = req.ip;
     const clientIp = requestIp.getClientIp(req);
 
-    res.status(200).json({ clientIp, ...userAgent });
+    res.status(200).json({ hostIp, clientIp, userAgent });
 });
 
 router.get('/locale', (req, res) => {

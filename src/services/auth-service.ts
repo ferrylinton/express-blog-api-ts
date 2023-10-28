@@ -1,11 +1,10 @@
 import bcrypt from 'bcrypt';
 import { Request } from "express";
-import parser from 'ua-parser-js';
 import { uid } from 'uid';
+import { ClientData } from '../types/client-data-type';
 import { AuthenticateType } from '../validations/authenticate-schema';
 import * as redisService from './redis-service';
 import * as userService from './user-service';
-import { ClientData } from '../types/client-data-type';
 
 
 export const authenticate = async ({ username, password }: AuthenticateType) => {
@@ -51,16 +50,6 @@ export const getTokenFromRequest = (req: Request) => {
     }
 
     return null;
-}
-
-export const getClientInfo = (req: Request) => {
-    const { browser, os } = parser(req.headers['user-agent']);
-    const clientInfo = {
-        browser: browser?.name,
-        os: os?.name
-    }
-
-    return JSON.stringify(clientInfo);
 }
 
 export const deleteTokenByUsername = async (username: string) => {

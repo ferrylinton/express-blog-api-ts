@@ -8,12 +8,11 @@ export const mongodbErrorHandler: ErrorRequestHandler = (err, req, res, next) =>
     try {
         if (err instanceof MongoServerError) {
             const mongoServerError = err as MongoServerError;
-            const regexResult = mongoServerError.message.match(/{([^}]+)}/);
+            //const regexResult = mongoServerError.message.match(/{([^}]+)}/);
             const message = 'Duplicate data'
-            const data = JSON.parse(regexResult ? regexResult[0].replace(/(['"])?([a-zA-Z0-9_]+)(['"])?:/g, '"$2": ') : '');
+            //const data = JSON.parse(regexResult ? regexResult[0].replace(/(['"])?([a-zA-Z0-9_]+)(['"])?:/g, '"$2": ') : '');
 
-            res.status(400)
-            return res.json({ message, data });
+            return res.status(409).json({ message });
         }
     } catch (error) {
         logger.error(error);

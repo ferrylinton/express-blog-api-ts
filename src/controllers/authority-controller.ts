@@ -16,10 +16,6 @@ export async function find(req: Request, res: Response, next: NextFunction) {
 
 export async function findById(req: Request, res: Response, next: NextFunction) {
     try {
-        if (!ObjectId.isValid(req.params.id)) {
-            return res.status(404).json({ message: DATA_IS_NOT_FOUND });
-        }
-
         const authority = await authorityService.findById(req.params.id);
         if (authority) {
             res.status(200).json(authority);
@@ -41,8 +37,7 @@ export async function create(req: Request, res: Response, next: NextFunction) {
             const authority = await authorityService.create({ createdBy, createdAt, ...validation.data });
             res.status(201).json(authority);
         } else {
-            const { fieldErrors: errors } = validation.error.flatten();
-            res.status(400).send({ errors });
+            res.status(400).send(validation.error.issues);
         }
     } catch (error) {
         next(error);
@@ -61,13 +56,12 @@ export async function update(req: Request, res: Response, next: NextFunction) {
             const updatedAt = new Date();
             const updatedBy = req.auth.username as string;
             const _id = new ObjectId(req.params.id);
-            const updateResult = await authorityService.update({_id, updatedBy, updatedAt, ...validation.data});
+            const updateResult = await authorityService.update({ _id, updatedBy, updatedAt, ...validation.data });
             updateResult.modifiedCount
                 ? res.status(200).json({ message: DATA_IS_UPDATED })
                 : res.status(404).json({ message: DATA_IS_NOT_FOUND });
         } else {
-            const { fieldErrors: errors } = validation.error.flatten();
-            res.status(400).send({ errors });
+            res.status(400).send(validation.error.issues);
         }
 
     } catch (error) {

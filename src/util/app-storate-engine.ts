@@ -18,9 +18,8 @@ export class AppStorageEngine implements StorageEngine {
     _handleFile(req: Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>, file: Express.Multer.File, callback: MulterCallback): void {
         try {
             imageService.create(this.bucket, req.auth.username as string, file.originalname, file.mimetype, file.stream, (error?: any, info?: Partial<Express.Multer.File> | undefined) => {
-                if (info && info.filename && info.originalname) {
+                if (info && info.filename) {
                     if (req.file) {
-                        req.file.originalname = info.originalname;
                         req.file.filename = info.filename;
                     }
                 }

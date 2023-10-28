@@ -41,8 +41,7 @@ export async function create(req: Request, res: Response, next: NextFunction) {
             const user = await userService.create({ createdBy, createdAt, ...validation.data });
             res.status(201).json(user);
         } else {
-            const { fieldErrors: errors } = validation.error.flatten();
-            res.status(400).send({ errors });
+            res.status(400).send(validation.error.issues);
         }
     } catch (error) {
         next(error);
@@ -66,8 +65,7 @@ export async function update(req: Request, res: Response, next: NextFunction) {
                 ? res.status(200).json({ message: DATA_IS_UPDATED })
                 : res.status(404).json({ message: DATA_IS_NOT_FOUND });
         } else {
-            const { fieldErrors: errors } = validation.error.flatten();
-            res.status(400).send({ errors });
+            res.status(400).send(validation.error.issues);
         }
 
     } catch (error) {

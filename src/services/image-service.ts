@@ -1,10 +1,11 @@
-import { GridFSBucket, ObjectId, WithId } from "mongodb";
-import { getCollection, getDb } from "../configs/mongodb";
+import sizeOf from 'image-size';
+import { GridFSBucket, ObjectId } from "mongodb";
+import { PassThrough, Readable } from "stream";
 import { IMAGE_FILES_COLLECTION } from "../configs/db-constant";
-import { Image, ImageMetadata, MulterCallback } from "../types/image-type";
-import { WithAudit } from "../types/common-type";
 import { IMAGE_BUCKET_NAME, IMAGE_MIME_TYPES } from "../configs/image-constant";
-import { Readable } from "stream";
+import { getCollection, getDb } from "../configs/mongodb";
+import { WithAudit } from "../types/common-type";
+import { Image, MulterCallback } from "../types/image-type";
 
 let bucket: GridFSBucket;
 
@@ -16,20 +17,32 @@ export const find = async (): Promise<Array<WithAudit<Image>>> => {
 
     const images: Array<WithAudit<Image>> = [];
     for await (const doc of cursor) {
+        const urls = [
+            `/api/images/view/${doc._id}`,
+            `/api/images/view/${doc.filename}`,
+        ]
         const { _id, ...rest } = doc;
-        images.push({ id: _id, ...rest });
+        images.push({ id: _id, ...rest, urls });
     }
 
     return images;
 }
 
-export const findById = async (_id: ObjectId): Promise<WithAudit<Image> | null> => {
+export const findById = async (id: string): Promise<WithAudit<Image> | null> => {
+    if (!ObjectId.isValid(id)) {
+        return null;
+    }
+
     const imageCollection = await getCollection<WithAudit<Image>>(IMAGE_FILES_COLLECTION);
-    const image = await imageCollection.findOne({ _id });
+    const image = await imageCollection.findOne({ _id: new ObjectId(id) });
 
     if (image) {
+        const urls = [
+            `/api/images/view/${image._id}`,
+            `/api/images/view/${image.filename}`,
+        ]
         const { _id, ...rest } = image;
-        return { id: _id, ...rest };
+        return { id: _id, ...rest, urls };
     }
 
     return null;
@@ -40,8 +53,12 @@ export const findByFilename = async (filename: string): Promise<WithAudit<Image>
     const image = await imageCollection.findOne({ filename });
 
     if (image) {
+        const urls = [
+            `/api/images/view/${image._id}`,
+            `/api/images/view/${image.filename}`,
+        ]
         const { _id, ...rest } = image;
-        return { id: _id, ...rest };
+        return { id: _id, ...rest, urls };
     }
 
     return null;
@@ -54,8 +71,21 @@ export const create = (bucket: GridFSBucket, createdBy: string, originalName: st
         return callback(new Error('Wrong file type'));
     }
 
-    const _id = new ObjectId();
+
     const filename = `${arr.length > 0 ? arr[0] : 'unknown'}.${createdBy}.${IMAGE_MIME_TYPES[contentType as keyof typeof IMAGE_MIME_TYPES]}`;
+
+    const tunnel = new PassThrough();
+    let buffer = Array<any>();
+    let width: number = 0;
+    let height: number = 0;
+    tunnel.on("data", chunk => buffer.push(chunk));
+    tunnel.on("error", error => callback(error));
+    tunnel.on("end", () => {
+        const result = sizeOf(Buffer.concat(buffer));
+        width = result.width || 0;
+        height = result.height || 0;
+    })
+
     const metadata = {
         createdBy,
         originalName,
@@ -68,14 +98,15 @@ export const create = (bucket: GridFSBucket, createdBy: string, originalName: st
             if (isExist) {
                 return callback(new Error('Image is already exist'));
             } else {
-                stream.pipe(bucket.openUploadStreamWithId(_id, filename, { metadata }))
+                stream.pipe(tunnel).pipe(bucket.openUploadStream(filename, { metadata: { width, height, ...metadata } }))
                     .on('error', function (error) {
                         callback(error);
-                    }).on('finish', async function () {
-                        callback(null, { filename, originalname: metadata.originalName });
+                    }).on('finish', function () {
+                        callback(null, { filename });
                     });
             }
         })
+
 }
 
 export const deleteById = async (_id: ObjectId): Promise<void> => {

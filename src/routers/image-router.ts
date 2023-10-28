@@ -7,7 +7,8 @@ import { IMAGE_ADMIN, IMAGE_OWNER } from '../configs/auth-constant';
 
 const router = Router();
 router.get("/", imageController.find);
-router.get("/:filename", imageController.findByFilename);
+router.get("/:id", imageController.findById);
+router.get("/view/:idOrFilename", imageController.viewByIdOrFilename);
 router.post('/upload', hasAuthority(IMAGE_OWNER), uploadImage, imageController.create);
 router.delete("/:id", hasAuthority(IMAGE_ADMIN), imageController.deleteById);
 router.delete("/:owner/:id", hasAuthority(IMAGE_OWNER), imageController.deleteById);

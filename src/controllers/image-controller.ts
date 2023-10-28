@@ -17,11 +17,7 @@ export async function find(req: Request, res: Response, next: NextFunction) {
 
 export async function findById(req: Request, res: Response, next: NextFunction) {
     try {
-        if (!ObjectId.isValid(req.params.id)) {
-            return res.status(404).json({ message: DATA_IS_NOT_FOUND });
-        }
-
-        const image = await imageService.findById(new ObjectId(req.params.id));
+        const image = await imageService.findById(req.params.id);
 
         if (image) {
             res.status(200).json(image);
@@ -33,9 +29,9 @@ export async function findById(req: Request, res: Response, next: NextFunction) 
     }
 };
 
-export async function findByFilename(req: Request, res: Response, next: NextFunction) {
+export async function viewByIdOrFilename(req: Request, res: Response, next: NextFunction) {
     try {
-        const image = await imageService.findByFilename(req.params.filename);
+        const image = ObjectId.isValid(req.params.idOrFilename) ? (await imageService.findById(req.params.idOrFilename)) : (await imageService.findByFilename(req.params.idOrFilename));
 
         if (image) {
             res.setHeader('Cross-Origin-Opener-Policy', "cross-origin");
@@ -58,9 +54,12 @@ export async function create(req: Request, res: Response, next: NextFunction) {
         if (req.file === undefined) {
             return res.status(400).json({ message: "you must select a file." });
         } else {
-            const local = `http://localhost:${PORT}/api/images/${req.file.filename}`;
-            const remote = `http://${address()}:${PORT}/api/images/${req.file.filename}`;
-            res.status(200).json({ local, remote });
+            const image = await imageService.findByFilename(req.file.filename);
+            if (image) {
+                res.status(201).json(image);
+            } else {
+                res.status(404).json({ message: DATA_IS_NOT_FOUND });
+            }
         }
     } catch (error) {
         next(error);

@@ -30,6 +30,7 @@ export const createImageBucketSchema = async (db: Db) => {
                         },
                         "metadata": {
                             "bsonType": "object",
+                            "additionalProperties": false,
                             "properties": {
                                 "createdBy": {
                                     "bsonType": "string"
@@ -39,6 +40,12 @@ export const createImageBucketSchema = async (db: Db) => {
                                 },
                                 "originalName": {
                                     "bsonType": "string"
+                                },
+                                "width": {
+                                    "bsonType": "int"
+                                },
+                                "height": {
+                                    "bsonType": "int"
                                 }
                             },
                             "required": ["createdBy", "contentType", "originalName"]

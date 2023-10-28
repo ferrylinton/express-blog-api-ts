@@ -1,38 +1,55 @@
-import { boolean, number, object, string } from 'zod';
+import { boolean, number, object, string, z } from 'zod';
 
-const UserSchema = object({
+export const CreateUserSchema = object({
 
-    username: string({ required_error: "username.required" })
-        .min(3, { message: "username.invalid" })
-        .max(100, { message: "username.invalid" }),
+    username: string()
+        .min(3)
+        .max(100),
 
-    email: string({ required_error: 'email.required' })
-        .max(50, { message: "email.invalid" })
-        .email('email.invalid'),
+    email: string()
+        .max(50)
+        .email(),
 
-    password: string({ required_error: 'password.required' })
-        .min(6, 'password.invalid')
-        .max(30, 'password.invalid'),
-        
-    passwordConfirm: string({ required_error: 'passwordConfirm.requried' })
-        .nonempty({ message: 'passwordConfirm.requried' }),
+    password: string()
+        .min(6)
+        .max(30),
 
-    activated: boolean({ required_error: 'activated.requried' }),
+    passwordConfirm: string().nonempty(),
 
-    locked: boolean({ required_error: 'locked.requried' }),
-
-    loginAttempt: number({ required_error: 'loginAttempt.requried' }),
-
-    authorities: string().array().nonempty({
-        message: "authorities.empty"
-    })
+    authorities: string().array().nonempty()
 
 })
+    .refine((data) => data.password === data.passwordConfirm, {
+        path: ['passwordConfirm'],
+        message: 'password.notMatch',
+    });
 
-export const CreateUserSchema = UserSchema
-.refine((data) => data.password === data.passwordConfirm, {
-    path: ['passwordConfirm'],
-    message: 'password.notMatch',
-});
+export const UpdateUserSchema = object({
 
-export const UpdateUserSchema = UserSchema.partial();
+    username: string()
+        .min(3)
+        .max(100),
+
+    email: string()
+        .max(50)
+        .email(),
+
+    password: string()
+        .min(6)
+        .max(30),
+
+    passwordConfirm: string().nonempty(),
+
+    authorities: string().array().nonempty(),
+
+    activated: boolean(),
+
+    locked: boolean(),
+
+    loginAttempt: number(),
+
+}).partial();
+
+export type CreateUser = z.infer<typeof CreateUserSchema>
+
+export type UpdateUser = z.infer<typeof UpdateUserSchema>

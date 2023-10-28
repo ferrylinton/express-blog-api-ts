@@ -4,6 +4,7 @@ import { USER_COLLECTION } from "../configs/db-constant";
 import { BadRequestError } from '../errors/badrequest-error';
 import { Create, Update, WithAudit } from '../types/common-type';
 import bcrypt from 'bcrypt';
+import { CreateUser } from "../validations/user-schema";
 
 
 export const find = async (): Promise<Array<WithAudit<User>>> => {
@@ -35,20 +36,26 @@ export const findById = async (id: string): Promise<WithAudit<User> | null> => {
     return null;
 }
 
-export const create = async (user: Create<User>): Promise<WithAudit<User>> => {
+export const create = async ({passwordConfirm, ...createUser}: Create<CreateUser>): Promise<WithAudit<User>> => {
     const userCollection = await getCollection<WithAudit<User>>(USER_COLLECTION);
     const current = await userCollection.findOne({
         "$or": [{
-            "username": user.username
+            "username": createUser.username
         }, {
-            "email": user.email
+            "email": createUser.email
         }]
     });
 
     if (current) {
-        throw new BadRequestError(400, `User [username='${user.username}'] or [email='${user.email}'] is already exist`);
+        throw new BadRequestError(400, `User [username='${createUser.username}'] or [email='${createUser.email}'] is already exist`);
     }
 
+    const user: Create<User> = {
+        loginAttempt: 0,
+        activated: false,
+        locked: false,
+        ...createUser
+    };
     user.password = bcrypt.hashSync(user.password, 10);
     const insertOneResult: InsertOneResult<WithAudit<User>> = await userCollection.insertOne(user);
     const { _id, ...rest } = user;

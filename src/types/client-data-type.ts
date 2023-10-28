@@ -1,5 +1,5 @@
 export type ClientData = {
-    ip?: string,
-    browser?: string,
-    os?: string
+    hostIp?: string,
+    clientIp?: string,
+    userAgent?: string
 }

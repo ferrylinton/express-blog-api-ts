@@ -6,28 +6,35 @@ import { logger } from "../configs/winston";
 const message = "Access Restricted";
 
 export const ipWhitelistHandler = async (req: Request, res: Response, next: NextFunction) => {
-    const ip = requestIp.getClientIp(req);
+    const hostIp = req.ip;
+    const clientIp = requestIp.getClientIp(req) || '';
 
-    if (ip && (await getWhitelist()).has(ip)) {
+    console.log('######### whitelist');
+    console.log(req.originalUrl);
+    console.log(hostIp)
+
+    if ((await getWhitelist()).has(hostIp)) {
         logger.log({
             request: true,
             level: 'debug',
             message: `[REQUEST] ${JSON.stringify({
-                ip,
+                hostIp,
+                clientIp,
                 method: req.method,
                 url: req.url
             })}`
         });
 
         next();
-        
+
     } else {
 
         logger.log({
             request: true,
             level: 'debug',
             message: `[REQUEST] ${JSON.stringify({
-                ip,
+                hostIp,
+                clientIp,
                 method: req.method,
                 url: req.url,
                 message

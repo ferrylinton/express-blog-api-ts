@@ -10,12 +10,12 @@ export const getAllTokens = async (username: string) => {
     const tokens = keys.map(key => key.replace(prefix, ''));
     const authDatas = await redisClient.MGET(keys);
     return authDatas.map((authData, index) => {
-        const { ip, browser, os } = JSON.parse(authData as string) as AuthData
-        return { token: tokens[index], ip, browser, os }
+        const { hostIp, clientIp, userAgent } = JSON.parse(authData as string) as AuthData
+        return { token: tokens[index], hostIp, clientIp, userAgent }
     })
 }
 
-export const getAuthData = async (token: string) => {
+export const getAuthData = async (token: string) : Promise<AuthData | null> => {
     const username = await redisClient.GET(`${REDIS_PREFIX}:${token}`);
 
     if (username) {

@@ -21,7 +21,6 @@ export async function uploadImage(req: Request, res: Response, next: NextFunctio
     const storage = await getStorage();
     const upload = multer({ storage, limits: { fileSize: MAX_FILE_SIZE } }).single("file");
 
-
     upload(req, res, function (err: any) {
         if (err) {
             if (err instanceof MulterError) {
