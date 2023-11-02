@@ -1,6 +1,6 @@
 import sizeOf from 'image-size';
-import { GridFSBucket, ObjectId } from "mongodb";
-import { PassThrough, Readable } from "stream";
+import { GridFSBucket, ObjectId, UpdateResult } from "mongodb";
+import { PassThrough } from "stream";
 import { IMAGE_FILES_COLLECTION } from "../configs/db-constant";
 import { IMAGE_BUCKET_NAME, IMAGE_MIME_TYPES } from "../configs/image-constant";
 import { getCollection, getDb } from "../configs/mongodb";
@@ -64,32 +64,35 @@ export const findByFilename = async (filename: string): Promise<WithAudit<Image>
     return null;
 }
 
-export const create = (bucket: GridFSBucket, createdBy: string, originalName: string, contentType: string, stream: Readable, callback: MulterCallback) => {
-    const arr = originalName.split('.');
+export const create = (bucket: GridFSBucket, createdBy: string, file: Express.Multer.File, callback: MulterCallback) => {
+    const arr = file.originalname.split('.');
 
-    if (!IMAGE_MIME_TYPES.hasOwnProperty(contentType)) {
+    if (!IMAGE_MIME_TYPES.hasOwnProperty(file.mimetype)) {
         return callback(new Error('Wrong file type'));
     }
 
 
-    const filename = `${arr.length > 0 ? arr[0] : 'unknown'}.${createdBy}.${IMAGE_MIME_TYPES[contentType as keyof typeof IMAGE_MIME_TYPES]}`;
-
+    const filename = `${arr.length > 0 ? arr[0] : 'unknown'}.${createdBy}.${IMAGE_MIME_TYPES[file.mimetype as keyof typeof IMAGE_MIME_TYPES]}`;
+    const _id = new ObjectId();
     const tunnel = new PassThrough();
     let buffer = Array<any>();
-    let width: number = 0;
-    let height: number = 0;
     tunnel.on("data", chunk => buffer.push(chunk));
     tunnel.on("error", error => callback(error));
     tunnel.on("end", () => {
-        const result = sizeOf(Buffer.concat(buffer));
-        width = result.width || 0;
-        height = result.height || 0;
+        const { width, height } = sizeOf(Buffer.concat(buffer));
+        setTimeout(() => {
+            updateDimension(_id, width || 0, height || 0)
+                .then(updateResult => console.log(updateResult))
+                .catch(error => console.log(error));
+        }, 2000);
     })
 
     const metadata = {
         createdBy,
-        originalName,
-        contentType
+        originalName: file.originalname,
+        contentType: file.mimetype,
+        width: 0,
+        height: 0
     }
 
     const cursor = bucket.find({ filename, metadata });
@@ -98,15 +101,20 @@ export const create = (bucket: GridFSBucket, createdBy: string, originalName: st
             if (isExist) {
                 return callback(new Error('Image is already exist'));
             } else {
-                stream.pipe(tunnel).pipe(bucket.openUploadStream(filename, { metadata: { width, height, ...metadata } }))
+                file.stream.pipe(tunnel).pipe(bucket.openUploadStreamWithId(_id, filename, { metadata }))
                     .on('error', function (error) {
                         callback(error);
                     }).on('finish', function () {
-                        callback(null, { filename });
+                        callback(null, { filename, originalname: file.originalname });
                     });
             }
         })
 
+}
+
+export const updateDimension = async (_id: ObjectId, width: number, height: number): Promise<UpdateResult> => {
+    const imageCollection = await getCollection<WithAudit<Image>>(IMAGE_FILES_COLLECTION);
+    return await imageCollection.updateOne({ _id }, { $set: { "metadata.width": width,  "metadata.height": height} });
 }
 
 export const deleteById = async (_id: ObjectId): Promise<void> => {

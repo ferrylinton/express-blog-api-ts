@@ -4,7 +4,8 @@ import { USER_COLLECTION } from "../configs/db-constant";
 import { BadRequestError } from '../errors/badrequest-error';
 import { Create, Update, WithAudit } from '../types/common-type';
 import bcrypt from 'bcrypt';
-import { CreateUser } from "../validations/user-schema";
+import { ChangePassword, CreateUser } from "../validations/user-schema";
+import { LoginInfo } from "../types/auth-data-type";
 
 
 export const find = async (): Promise<Array<WithAudit<User>>> => {
@@ -36,7 +37,7 @@ export const findById = async (id: string): Promise<WithAudit<User> | null> => {
     return null;
 }
 
-export const create = async ({passwordConfirm, ...createUser}: Create<CreateUser>): Promise<WithAudit<User>> => {
+export const create = async ({ passwordConfirm, ...createUser }: Create<CreateUser>): Promise<WithAudit<User>> => {
     const userCollection = await getCollection<WithAudit<User>>(USER_COLLECTION);
     const current = await userCollection.findOne({
         "$or": [{
@@ -51,9 +52,6 @@ export const create = async ({passwordConfirm, ...createUser}: Create<CreateUser
     }
 
     const user: Create<User> = {
-        loginAttempt: 0,
-        activated: false,
-        locked: false,
         ...createUser
     };
     user.password = bcrypt.hashSync(user.password, 10);
@@ -65,6 +63,24 @@ export const create = async ({passwordConfirm, ...createUser}: Create<CreateUser
 export const update = async ({ _id, ...rest }: Update<User>): Promise<UpdateResult> => {
     const userCollection = await getCollection<User>(USER_COLLECTION);
     return await userCollection.updateOne({ _id }, { $set: rest });
+}
+
+export const updateByUsername = async ({ _id, ...rest }: Update<User>): Promise<UpdateResult> => {
+    const userCollection = await getCollection<User>(USER_COLLECTION);
+    return await userCollection.updateOne({ _id }, { $set: rest });
+}
+
+export const updateLoginInfo = async ({ username, ...rest }: LoginInfo): Promise<UpdateResult> => {
+    const userCollection = await getCollection<User>(USER_COLLECTION);
+    return await userCollection.updateOne({ username }, { $set: rest });
+}
+
+export const changePassword = async ({ username, passwordConfirm, ...user }: ChangePassword): Promise<UpdateResult> => {
+    user.password = bcrypt.hashSync(user.password, 10);
+    console.log(username);
+    console.log(user);
+    const userCollection = await getCollection<User>(USER_COLLECTION);
+    return await userCollection.updateOne({ username }, { $set: user });
 }
 
 export const deleteById = async (id: string): Promise<DeleteResult> => {

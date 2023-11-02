@@ -2,38 +2,24 @@ import { object, string } from 'zod';
 
 export const CreatePostSchema = object({
 
-    slug: string({ required_error: "slug.required" })
-        .min(3, { message: "slug.invalid" })
-        .max(100, { message: "slug.invalid" }),
+    slug: string().min(3).max(100),
 
     title: object({
-        id: string({ required_error: "title.id.required" })
-            .min(3, { message: "title.id.invalid" })
-            .max(150, { message: "title.id.invalid" }),
-        en: string({ required_error: "title.en.required" })
-            .min(3, { message: "title.en.invalid" })
-            .max(150, { message: "title.en.invalid" })
+        id: string().min(3).max(150),
+        en: string().min(3).max(150)
     }),
 
     description: object({
-        id: string({ required_error: "description.id.required" })
-            .min(3, { message: "description.id.invalid" })
-            .max(250, { message: "description.id.invalid" }),
-        en: string({ required_error: "description.en.required" })
-            .min(3, { message: "description.en.invalid" })
-            .max(250, { message: "description.en.invalid" }),
+        id: string().min(3).max(250),
+        en: string().min(3).max(250),
     }),
 
     content: object({
-        id: string({ required_error: "content.id.required" })
-            .min(3, { message: "content.id.invalid" }),
-        en: string({ required_error: "content.en.required" })
-            .min(3, { message: "content.en.invalid" }),
+        id: string().min(3),
+        en: string().min(3),
     }),
 
-    tags: string().array().nonempty({
-        message: "tags.empty"
-    })
+    tags: string().array().nonempty()
 
 });
 

@@ -1,6 +1,7 @@
 import { ErrorRequestHandler } from "express";
 import { MongoServerError } from "mongodb";
 import { logger } from "../configs/winston";
+import { AuthError } from "../errors/auth-error";
 
 export const restErrorHandler: ErrorRequestHandler = (err, req, res, next) => {
     logger.error(err);

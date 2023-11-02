@@ -19,8 +19,20 @@ export const initImageData = async () => {
                 const stream = fs.createReadStream(join(imagesFolder, originalName));
                 const { size } = fs.statSync(join(imagesFolder, originalName));
                 const type = await fromStream(fs.createReadStream(join(imagesFolder, originalName)));
+                const file: Express.Multer.File = {
+                    fieldname: '',
+                    originalname: originalName,
+                    encoding: '',
+                    mimetype: type?.mime || '',
+                    size: 0,
+                    stream,
+                    destination: '',
+                    filename: '',
+                    path: '',
+                    buffer: Buffer.from('')
+                };
 
-                imageService.create(bucket, "ferrylinton", originalName, type?.mime as string, stream, (error, file) => {
+                imageService.create(bucket, "ferrylinton", file, (error, file) => {
                     if (error) {
                         console.log(error);
                     } else {

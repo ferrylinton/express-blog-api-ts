@@ -11,4 +11,7 @@ router.get("/:id", hasAuthority(READ_USER_DATA), userController.findById);
 router.put("/:id", hasAuthority(MODIFY_USER_DATA), userController.update);
 router.delete("/:id", hasAuthority(MODIFY_USER_DATA), userController.deleteById);
 
+router.post('/:id/changepassword', hasAuthority(MODIFY_USER_DATA), userController.changePasswordById);
+router.post('/changepassword', userController.changePassword);
+
 export default router;

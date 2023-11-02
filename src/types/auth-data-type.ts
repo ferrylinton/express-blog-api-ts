@@ -7,3 +7,10 @@ export type AuthData = {
     authorities?: string[],
     language?: Language;
 } & ClientData
+
+export type LoginInfo = {
+    username: string,
+    loginAttempt?: number,
+    activated?: boolean,
+    locked?: boolean,
+}

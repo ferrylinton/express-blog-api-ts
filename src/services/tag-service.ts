@@ -37,7 +37,7 @@ export const create = async (tag: Create<Tag>): Promise<WithAudit<Tag>> => {
     const current = await tagCollection.findOne({ name: tag.name });
 
     if (current) {
-        throw new BadRequestError(400, `Tag [name='${tag.name}'] is already exist`);
+        throw new BadRequestError(409, `Tag [name='${tag.name}'] is already exist`);
     }
 
     const insertOneResult: InsertOneResult<WithAudit<Tag>> = await tagCollection.insertOne(tag);

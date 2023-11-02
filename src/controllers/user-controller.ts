@@ -2,7 +2,7 @@ import { NextFunction, Request, Response } from 'express';
 import { ObjectId } from 'mongodb';
 import { DATA_IS_DELETED, DATA_IS_NOT_FOUND, DATA_IS_UPDATED } from '../configs/message-constant';
 import * as userService from '../services/user-service';
-import { CreateUserSchema, UpdateUserSchema } from '../validations/user-schema';
+import { ChangePasswordSchema, CreateUserSchema, UpdateUserSchema } from '../validations/user-schema';
 
 
 export async function find(req: Request, res: Response, next: NextFunction) {
@@ -60,10 +60,66 @@ export async function update(req: Request, res: Response, next: NextFunction) {
             const updatedAt = new Date();
             const updatedBy = req.auth.username as string;
             const _id = new ObjectId(req.params.id);
-            const updateResult = await userService.update({_id, updatedBy, updatedAt, ...validation.data});
+            const updateResult = await userService.update({ _id, updatedBy, updatedAt, ...validation.data });
             updateResult.modifiedCount
                 ? res.status(200).json({ message: DATA_IS_UPDATED })
                 : res.status(404).json({ message: DATA_IS_NOT_FOUND });
+        } else {
+            res.status(400).send(validation.error.issues);
+        }
+
+    } catch (error) {
+        next(error);
+    }
+};
+
+export async function changePasswordById(req: Request, res: Response, next: NextFunction) {
+    try {
+        if (!ObjectId.isValid(req.params.id)) {
+            return res.status(404).json({ message: DATA_IS_NOT_FOUND });
+        }
+
+        const user = await userService.findById(req.params.id);
+        if (user) {
+            console.log(user);
+            console.log(req.body);
+            console.log({username: user.username, ...req.body});
+            const validation = ChangePasswordSchema.safeParse({username: user.username, ...req.body});
+            if (validation.success) {
+                const updateResult = await userService.changePassword({ updatedBy: user.username, ...validation.data });
+                updateResult.modifiedCount
+                    ? res.status(200).json({ message: DATA_IS_UPDATED })
+                    : res.status(404).json({ message: DATA_IS_NOT_FOUND });
+            } else {
+                res.status(400).send(validation.error.issues);
+            }
+        } else {
+            res.status(404).json({ message: DATA_IS_NOT_FOUND });
+        }
+
+
+
+    } catch (error) {
+        next(error);
+    }
+};
+
+export async function changePassword(req: Request, res: Response, next: NextFunction) {
+    try {
+        const validation = ChangePasswordSchema.safeParse(req.body);
+
+        if (validation.success) {
+            if (validation.data.username === req.auth.username) {
+                const updatedBy = req.auth.username as string;
+                const updateResult = await userService.changePassword({ updatedBy, ...validation.data });
+                updateResult.modifiedCount
+                    ? res.status(200).json({ message: DATA_IS_UPDATED })
+                    : res.status(404).json({ message: DATA_IS_NOT_FOUND });
+            }else{
+                res.status(403).json({ message: "Forbidden" });
+            }
+
+
         } else {
             res.status(400).send(validation.error.issues);
         }

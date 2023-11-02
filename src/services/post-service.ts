@@ -89,6 +89,7 @@ export const find = async (tag: string | null, keyword: string | null, page: num
     }
 
     const arr = await postCollection.aggregate<Pageable<Omit<Post, "content">>>(pipeline).toArray();
+    console.log(arr);
     if (arr.length) {
         if (keyword) {
             arr[0].keyword = keyword;
@@ -97,6 +98,11 @@ export const find = async (tag: string | null, keyword: string | null, page: num
         arr[0].pagination.page = page;
         arr[0].pagination.totalPage = Math.ceil(arr[0].pagination.total / PAGE_SIZE)
         arr[0].pagination.pageSize = PAGE_SIZE;
+
+        arr[0].data = arr[0].data.map(post => {
+            const { _id, ...rest } = post;
+            return { id: _id, ...rest }
+        })
 
         return arr[0];
     }
