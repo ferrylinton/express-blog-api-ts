@@ -3,38 +3,26 @@ import { DeleteResult, ObjectId, UpdateResult } from 'mongodb';
 import { ACCESS_FORBIDDEN, DATA_IS_DELETED, DATA_IS_NOT_FOUND, DATA_IS_UPDATED } from '../configs/message-constant';
 import * as postService from '../services/post-service';
 import { CreatePostSchema, UpdatePostSchema } from '../validations/post-schema';
+import { BLOG_OWNER } from '../configs/auth-constant';
 
 
 export async function find(req: Request, res: Response, next: NextFunction) {
     try {
-        if (req.query.slug) {
-            const post = await postService.findBySlug(req.query.slug as string);
-
-            if (post) {
-                res.status(200).json(post);
-            } else {
-                res.status(404).json({ message: DATA_IS_NOT_FOUND });
-            }
-        } else {
-            const tag = req.query.tag as string || null;
-            const keyword = req.query.keyword as string || null;
-            const page = req.query.page as string || '1';
-            const pageable = await postService.find(tag, keyword, parseInt(page));
-            res.status(200).send(pageable);
-        }
-
+        const tag = req.query.tag as string || null;
+        const keyword = req.query.keyword as string || null;
+        const page = req.query.page as string || '1';
+        const pageable = await postService.find(tag, keyword, parseInt(page));
+        res.status(200).send(pageable);
     } catch (error) {
         next(error);
     }
 };
 
-export async function findById(req: Request, res: Response, next: NextFunction) {
+export async function findByIdOrSlug(req: Request, res: Response, next: NextFunction) {
     try {
-        if (!ObjectId.isValid(req.params.id)) {
-            return res.status(404).json({ message: DATA_IS_NOT_FOUND });
-        }
-
-        const post = await postService.findById(req.params.id);
+        const post = ObjectId.isValid(req.params.idOrSlug) ?
+            await postService.findById(req.params.idOrSlug) :
+            await postService.findBySlug(req.params.idOrSlug);
 
         if (post) {
             res.status(200).json(post);
@@ -105,22 +93,22 @@ export async function deleteById(req: Request, res: Response, next: NextFunction
             return res.status(404).json({ message: DATA_IS_NOT_FOUND });
         }
 
-        let deleteResult: DeleteResult = { acknowledged: false, deletedCount: 0 };
-        const _id = new ObjectId(req.params.id);
-        const owner = req.params.owner;
-        const createdBy = req.auth.username as string;
+        const post = await postService.findById(req.params.idOrSlug);
 
-        if (owner && owner !== createdBy) {
-            return res.status(403).json({ message: ACCESS_FORBIDDEN });
-        } else if (owner) {
-            deleteResult = await postService.deleteByOwnerAndId(owner, _id);
+        if (post) {
+            if ((req.auth.username && post.createdBy) || (req.auth.authorities?.includes(BLOG_OWNER))) {
+                const deleteResult = await postService.deleteById(new ObjectId(req.params.id));
+                deleteResult.deletedCount
+                    ? res.status(200).json({ message: DATA_IS_DELETED })
+                    : res.status(404).json({ message: DATA_IS_NOT_FOUND });
+            } else {
+                return res.status(403).json({ message: ACCESS_FORBIDDEN });
+            }
         } else {
-            deleteResult = await postService.deleteById(_id);
+            res.status(404).json({ message: DATA_IS_NOT_FOUND });
         }
 
-        deleteResult.deletedCount
-            ? res.status(200).json({ message: DATA_IS_DELETED })
-            : res.status(404).json({ message: DATA_IS_NOT_FOUND });
+
 
     } catch (error) {
         next(error);

@@ -1,7 +1,7 @@
 import { boolean, coerce, date, number, object, string, z } from 'zod';
 
 export const CreateUserSchema = object({
-    username: string().min(3).max(100),
+    username: string().min(3).max(30),
     email: string().max(50).email(),
     password: string().min(6).max(30),
     passwordConfirm: string().nonempty(),
@@ -17,7 +17,7 @@ export const CreateUserSchema = object({
     });
 
 export const ChangePasswordSchema = object({
-    username: string().min(3).max(100),
+    username: string().min(3).max(30),
     password: string().min(6).max(30),
     passwordConfirm: string().nonempty(),
     updatedBy: string().optional(),
@@ -29,7 +29,7 @@ export const ChangePasswordSchema = object({
     });
 
 export const UpdateUserSchema = object({
-    username: string().min(3).max(100),
+    username: string().min(3).max(30),
     email: string().max(50).email(),
     authorities: string().array().nonempty(),
     activated: boolean(),

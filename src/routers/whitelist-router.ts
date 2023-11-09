@@ -5,10 +5,11 @@ import { MODIFY_WHITELIST_DATA, READ_WHITELIST_DATA } from '../configs/auth-cons
 
 const router = Router();
 
-router.get('/', hasAuthority(READ_WHITELIST_DATA), whitelistController.find);
-router.get('/reload', hasAuthority(READ_WHITELIST_DATA), whitelistController.reload);
-router.post('/', hasAuthority(MODIFY_WHITELIST_DATA), whitelistController.create);
-router.get("/:id", hasAuthority(READ_WHITELIST_DATA), whitelistController.findById);
-router.delete("/:id", hasAuthority(MODIFY_WHITELIST_DATA), whitelistController.deleteById);
+router.get('/', hasAuthority([READ_WHITELIST_DATA]), whitelistController.find);
+router.get('/reload', hasAuthority([READ_WHITELIST_DATA]), whitelistController.reload);
+router.post('/', hasAuthority([MODIFY_WHITELIST_DATA]), whitelistController.create);
+router.get("/:id", hasAuthority([READ_WHITELIST_DATA]), whitelistController.findById);
+router.put("/:id", hasAuthority([MODIFY_WHITELIST_DATA]), whitelistController.update);
+router.delete("/:id", hasAuthority([MODIFY_WHITELIST_DATA]), whitelistController.deleteById);
 
 export default router;

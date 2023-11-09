@@ -6,11 +6,11 @@ import { hasAuthority } from '../middleware/has-authority-handler';
 const router = Router();
 
 router.get('/', todoController.find);
-router.post('/', hasAuthority(TASK_OWNER), todoController.create);
+router.post('/', hasAuthority([TASK_OWNER]), todoController.create);
 router.get("/:id", todoController.findById);
-router.put("/:id", hasAuthority(TASK_ADMIN), todoController.update);
-router.delete("/:id", hasAuthority(TASK_ADMIN), todoController.deleteById);
-router.put("/:owner/:id", hasAuthority(TASK_OWNER), todoController.update);
-router.delete("/:owner/:id", hasAuthority(TASK_OWNER), todoController.deleteById);
+router.put("/:id", hasAuthority([TASK_ADMIN]), todoController.update);
+router.delete("/:id", hasAuthority([TASK_ADMIN]), todoController.deleteById);
+router.put("/:owner/:id", hasAuthority([TASK_OWNER]), todoController.update);
+router.delete("/:owner/:id", hasAuthority([TASK_OWNER]), todoController.deleteById);
 
 export default router;

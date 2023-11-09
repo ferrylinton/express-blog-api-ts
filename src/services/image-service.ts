@@ -4,28 +4,93 @@ import { PassThrough } from "stream";
 import { IMAGE_FILES_COLLECTION } from "../configs/db-constant";
 import { IMAGE_BUCKET_NAME, IMAGE_MIME_TYPES } from "../configs/image-constant";
 import { getCollection, getDb } from "../configs/mongodb";
-import { WithAudit } from "../types/common-type";
+import { Pageable, WithAudit } from "../types/common-type";
 import { Image, MulterCallback } from "../types/image-type";
+import { PAGE_SIZE } from '../configs/pagination-constant';
+import { logger } from '../configs/winston';
 
 let bucket: GridFSBucket;
 
-export const find = async (): Promise<Array<WithAudit<Image>>> => {
+export const find = async (keyword: string | null, page: number) => {
+    page = page <= 0 ? 1 : page;
     const imageCollection = await getCollection<WithAudit<Image>>(IMAGE_FILES_COLLECTION);
-    const cursor = imageCollection.find({}, {
-        sort: { filename: 1 }
-    });
 
-    const images: Array<WithAudit<Image>> = [];
-    for await (const doc of cursor) {
-        const urls = [
-            `/api/images/view/${doc._id}`,
-            `/api/images/view/${doc.filename}`,
-        ]
-        const { _id, ...rest } = doc;
-        images.push({ id: _id, ...rest, urls });
+    const pipeline = [
+        {
+            '$match': {}
+        }, {
+            '$sort': {
+                'filename': 1
+            }
+        }, {
+            '$facet': {
+                'data': [
+                    {
+                        '$skip': (page - 1) * PAGE_SIZE
+                    }, {
+                        '$limit': PAGE_SIZE
+                    }
+                ],
+                'pagination': [
+                    {
+                        '$count': 'total'
+                    }
+                ]
+            }
+        }, {
+            '$unwind': '$pagination'
+        }
+    ];
+
+    if (keyword) {
+        const regex = new RegExp(keyword, 'i');
+        pipeline[0]['$match'] = {
+            '$or': [
+                { 'filename': regex },
+                { 'metadata.originalName': regex },
+                { 'metadata.createdBy': regex }
+            ]
+        }
+
+        logger.info('IMAGE.find : ' + JSON.stringify(pipeline).replaceAll('{}', regex.toString()));
+    } else {
+        pipeline.shift();
+        logger.info('IMAGE.find : ' + JSON.stringify(pipeline));
     }
 
-    return images;
+    const arr = await imageCollection.aggregate<Pageable<Image>>(pipeline).toArray();
+
+    if (arr.length) {
+        if (keyword) {
+            arr[0].keyword = keyword;
+        }
+
+        arr[0].pagination.page = page;
+        arr[0].pagination.totalPage = Math.ceil(arr[0].pagination.total / PAGE_SIZE)
+        arr[0].pagination.pageSize = PAGE_SIZE;
+
+        arr[0].data = arr[0].data.map(image => {
+            const urls = [
+                `/api/images/view/${image._id}`,
+                `/api/images/view/${image.filename}`,
+            ]
+            const { _id, ...rest } = image;
+            return { id: _id, ...rest, urls }
+        })
+
+        return arr[0];
+    }
+
+    return {
+        "data": [],
+        "pagination": {
+            "total": 0,
+            "totalPage": 0,
+            "page": 1,
+            "pageSize": 10
+        },
+        keyword
+    };
 }
 
 export const findById = async (id: string): Promise<WithAudit<Image> | null> => {
@@ -114,7 +179,7 @@ export const create = (bucket: GridFSBucket, createdBy: string, file: Express.Mu
 
 export const updateDimension = async (_id: ObjectId, width: number, height: number): Promise<UpdateResult> => {
     const imageCollection = await getCollection<WithAudit<Image>>(IMAGE_FILES_COLLECTION);
-    return await imageCollection.updateOne({ _id }, { $set: { "metadata.width": width,  "metadata.height": height} });
+    return await imageCollection.updateOne({ _id }, { $set: { "metadata.width": width, "metadata.height": height } });
 }
 
 export const deleteById = async (_id: ObjectId): Promise<void> => {

@@ -57,7 +57,8 @@ export const find = async (tag: string | null, keyword: string | null, page: num
                         { 'description.id': regex },
                         { 'description.en': regex },
                         { 'content.id': regex },
-                        { 'content.en': regex }
+                        { 'content.en': regex },
+                        { 'createdBy': regex }
                     ]
                 }
             ]
@@ -73,7 +74,8 @@ export const find = async (tag: string | null, keyword: string | null, page: num
                 { 'description.id': regex },
                 { 'description.en': regex },
                 { 'content.id': regex },
-                { 'content.en': regex }
+                { 'content.en': regex },
+                { 'createdBy': regex }
             ]
         }
 
@@ -89,7 +91,7 @@ export const find = async (tag: string | null, keyword: string | null, page: num
     }
 
     const arr = await postCollection.aggregate<Pageable<Omit<Post, "content">>>(pipeline).toArray();
-    console.log(arr);
+
     if (arr.length) {
         if (keyword) {
             arr[0].keyword = keyword;

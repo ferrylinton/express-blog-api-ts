@@ -1,7 +1,7 @@
-export const DATA_IS_NOT_FOUND = 'Data is not found';
+export const DATA_IS_NOT_FOUND = 'dataNotFound';
 
-export const DATA_IS_UPDATED = 'Data is updated';
+export const DATA_IS_UPDATED = 'dataUpdated';
 
-export const DATA_IS_DELETED = 'Data is deleted';
+export const DATA_IS_DELETED = 'dataDeleted';
 
-export const ACCESS_FORBIDDEN = 'Forbidden';
+export const ACCESS_FORBIDDEN = 'forbidden';

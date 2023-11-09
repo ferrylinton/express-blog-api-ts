@@ -5,7 +5,7 @@ import * as authorityService from '../services/authority-service';
 import { CreateAuthoritySchema, UpdateAuthoritySchema } from '../validations/authority-schema';
 
 
-export async function find(req: Request, res: Response, next: NextFunction) {
+export async function find(_req: Request, res: Response, next: NextFunction) {
     try {
         const authorities = await authorityService.find()
         res.status(200).send(authorities);
@@ -16,6 +16,10 @@ export async function find(req: Request, res: Response, next: NextFunction) {
 
 export async function findById(req: Request, res: Response, next: NextFunction) {
     try {
+        if (!ObjectId.isValid(req.params.id)) {
+            return res.status(404).json({ message: DATA_IS_NOT_FOUND });
+        }
+
         const authority = await authorityService.findById(req.params.id);
         if (authority) {
             res.status(200).json(authority);
@@ -71,18 +75,16 @@ export async function update(req: Request, res: Response, next: NextFunction) {
 
 export async function deleteById(req: Request, res: Response, next: NextFunction) {
     try {
-        const { id } = req.params;
+        if (!ObjectId.isValid(req.params.id)) {
+            return res.status(404).json({ message: DATA_IS_NOT_FOUND });
+        }
 
-        if (!ObjectId.isValid(id)) {
+        const result = await authorityService.deleteById(req.params.id);
+
+        if (result && result.deletedCount) {
+            res.status(200).json({ message: DATA_IS_DELETED });
+        } else if (!result.deletedCount) {
             res.status(404).json({ message: DATA_IS_NOT_FOUND });
-        } else {
-            const result = await authorityService.deleteById(req.params.id);
-
-            if (result && result.deletedCount) {
-                res.status(200).json({ message: DATA_IS_DELETED });
-            } else if (!result.deletedCount) {
-                res.status(404).json({ message: DATA_IS_NOT_FOUND });
-            }
         }
     } catch (error) {
         next(error);

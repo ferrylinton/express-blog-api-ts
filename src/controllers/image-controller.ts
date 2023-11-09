@@ -1,15 +1,16 @@
 import { NextFunction, Request, Response } from 'express';
-import { address } from 'ip';
-import { ObjectId } from 'mongodb';
-import { PORT } from '../configs/env-constant';
-import { ACCESS_FORBIDDEN, DATA_IS_NOT_FOUND } from '../configs/message-constant';
+import { DeleteResult, ObjectId } from 'mongodb';
+import { ACCESS_FORBIDDEN, DATA_IS_DELETED, DATA_IS_NOT_FOUND } from '../configs/message-constant';
 import * as imageService from '../services/image-service';
+import { IMAGE_ADMIN } from '../configs/auth-constant';
 
 
 export async function find(req: Request, res: Response, next: NextFunction) {
     try {
-        const images = await imageService.find()
-        res.status(200).json(images);
+        const keyword = req.query.keyword as string || null;
+        const page = req.query.page as string || '1';
+        const pageable = await imageService.find(keyword, parseInt(page))
+        res.status(200).json(pageable);
     } catch (error) {
         next(error);
     }
@@ -41,7 +42,7 @@ export async function viewByIdOrFilename(req: Request, res: Response, next: Next
             const bucket = await imageService.getImagesBucket();
             bucket.openDownloadStreamByName(image.filename).pipe(res);
         } else {
-            res.status(404).json({ message: 'Data is not found' });
+            res.status(404).json({ message: DATA_IS_NOT_FOUND });
         }
 
     } catch (error) {
@@ -73,18 +74,23 @@ export async function deleteById(req: Request, res: Response, next: NextFunction
         }
 
         const _id = new ObjectId(req.params.id);
-        const owner = req.params.owner;
-        const createdBy = req.auth.username as string;
+        const image = await imageService.findById(req.params.id);
 
-        if (owner && owner !== createdBy) {
-            return res.status(403).json({ message: ACCESS_FORBIDDEN });
-        } else if (owner) {
-            await imageService.deleteByOwnerAndId(owner, _id);
+        if (image) {
+            let deleteResult: DeleteResult = { acknowledged: false, deletedCount: 0 };
+
+            if (req.auth.username === image.metadata.createdBy) {
+                await imageService.deleteByOwnerAndId((req.auth.username as string), _id);
+            } else if (req.auth.authorities?.includes(IMAGE_ADMIN)) {
+                await imageService.deleteById(_id);
+            } else {
+                return res.status(403).json({ message: ACCESS_FORBIDDEN });
+            }
+
+            res.status(200).json({ message: DATA_IS_DELETED });
         } else {
-            await imageService.deleteById(_id);
+            res.status(404).json({ message: DATA_IS_NOT_FOUND });
         }
-
-        res.status(200).json({ message: 'Data is deleted' });
     } catch (error) {
         next(error);
     }

@@ -1,8 +1,9 @@
 import { NextFunction, Request, Response } from 'express';
 import { ObjectId } from 'mongodb';
-import { DATA_IS_DELETED, DATA_IS_NOT_FOUND, DATA_IS_UPDATED } from '../configs/message-constant';
+import { ACCESS_FORBIDDEN, DATA_IS_DELETED, DATA_IS_NOT_FOUND, DATA_IS_UPDATED } from '../configs/message-constant';
 import * as userService from '../services/user-service';
 import { ChangePasswordSchema, CreateUserSchema, UpdateUserSchema } from '../validations/user-schema';
+import { READ_USER_DATA } from '../configs/auth-constant';
 
 
 export async function find(req: Request, res: Response, next: NextFunction) {
@@ -14,15 +15,19 @@ export async function find(req: Request, res: Response, next: NextFunction) {
     }
 };
 
-export async function findById(req: Request, res: Response, next: NextFunction) {
+export async function findByIdOrUsername(req: Request, res: Response, next: NextFunction) {
     try {
-        if (!ObjectId.isValid(req.params.id)) {
-            return res.status(404).json({ message: DATA_IS_NOT_FOUND });
-        }
+        const user = ObjectId.isValid(req.params.idOrUsername) ?
+            (await userService.findById(req.params.idOrUsername)) :
+            (await userService.findByUsername(req.params.idOrUsername));
 
-        const user = await userService.findById(req.params.id);
         if (user) {
-            res.status(200).json(user);
+            if (req.auth.username === user.username || req.auth.authorities?.includes(READ_USER_DATA)) {
+                res.status(200).json(user);
+            } else {
+                return res.status(403).json({ message: ACCESS_FORBIDDEN });
+            }
+
         } else {
             res.status(404).json({ message: DATA_IS_NOT_FOUND });
         }
@@ -83,8 +88,8 @@ export async function changePasswordById(req: Request, res: Response, next: Next
         if (user) {
             console.log(user);
             console.log(req.body);
-            console.log({username: user.username, ...req.body});
-            const validation = ChangePasswordSchema.safeParse({username: user.username, ...req.body});
+            console.log({ username: user.username, ...req.body });
+            const validation = ChangePasswordSchema.safeParse({ username: user.username, ...req.body });
             if (validation.success) {
                 const updateResult = await userService.changePassword({ updatedBy: user.username, ...validation.data });
                 updateResult.modifiedCount
@@ -115,7 +120,7 @@ export async function changePassword(req: Request, res: Response, next: NextFunc
                 updateResult.modifiedCount
                     ? res.status(200).json({ message: DATA_IS_UPDATED })
                     : res.status(404).json({ message: DATA_IS_NOT_FOUND });
-            }else{
+            } else {
                 res.status(403).json({ message: "Forbidden" });
             }
 

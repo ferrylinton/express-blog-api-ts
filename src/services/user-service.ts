@@ -22,10 +22,6 @@ export const find = async (): Promise<Array<WithAudit<User>>> => {
 }
 
 export const findById = async (id: string): Promise<WithAudit<User> | null> => {
-    if (!ObjectId.isValid(id)) {
-        return null;
-    }
-
     const userCollection = await getCollection<WithAudit<User>>(USER_COLLECTION);
     const user = await userCollection.findOne({ _id: new ObjectId(id) });
 
@@ -36,6 +32,19 @@ export const findById = async (id: string): Promise<WithAudit<User> | null> => {
 
     return null;
 }
+
+export const findByUsername = async (username: string): Promise<WithAudit<User> | null> => {
+    const userCollection = await getCollection<WithAudit<User>>(USER_COLLECTION);
+    const user = await userCollection.findOne({ username });
+
+    if (user) {
+        const { _id, ...rest } = user;
+        return { id: _id, ...rest };
+    }
+
+    return null;
+}
+
 
 export const create = async ({ passwordConfirm, ...createUser }: Create<CreateUser>): Promise<WithAudit<User>> => {
     const userCollection = await getCollection<WithAudit<User>>(USER_COLLECTION);
@@ -90,16 +99,4 @@ export const deleteById = async (id: string): Promise<DeleteResult> => {
 
     const userCollection = await getCollection<User>(USER_COLLECTION);
     return await userCollection.deleteOne({ _id: new ObjectId(id) });
-}
-
-export const findByUsername = async (username: string): Promise<WithAudit<User> | null> => {
-    const userCollection = await getCollection<WithAudit<User>>(USER_COLLECTION);
-    const user = await userCollection.findOne({ username });
-
-    if (user) {
-        const { _id, ...rest } = user;
-        return { id: _id, ...rest };
-    }
-
-    return null;
 }

@@ -17,7 +17,7 @@ export const createPostSchema = async (db: Db) => {
                         },
                         "slug": {
                             "bsonType": "string",
-                            "minLength": 5,
+                            "minLength": 3,
                             "maxLength": 30,
                             "description": "Must be a string and unique"
                         },
@@ -35,12 +35,12 @@ export const createPostSchema = async (db: Db) => {
                             "properties": {
                                 "id": {
                                     "bsonType": "string",
-                                    "minLength": 2,
+                                    "minLength": 3,
                                     "description": "Must be a string and unique"
                                 },
                                 "en": {
                                     "bsonType": "string",
-                                    "minLength": 2,
+                                    "minLength": 3,
                                     "description": "Must be a string and unique"
                                 }
                             },
@@ -51,12 +51,12 @@ export const createPostSchema = async (db: Db) => {
                             "properties": {
                                 "id": {
                                     "bsonType": "string",
-                                    "minLength": 2,
+                                    "minLength": 3,
                                     "description": "Must be a string and unique"
                                 },
                                 "en": {
                                     "bsonType": "string",
-                                    "minLength": 2,
+                                    "minLength": 3,
                                     "description": "Must be a string and unique"
                                 }
                             },
@@ -67,12 +67,12 @@ export const createPostSchema = async (db: Db) => {
                             "properties": {
                                 "id": {
                                     "bsonType": "string",
-                                    "minLength": 2,
+                                    "minLength": 3,
                                     "description": "Must be a string and unique"
                                 },
                                 "en": {
                                     "bsonType": "string",
-                                    "minLength": 2,
+                                    "minLength": 3,
                                     "description": "Must be a string and unique"
                                 }
                             },
