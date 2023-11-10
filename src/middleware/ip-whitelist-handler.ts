@@ -9,10 +9,6 @@ export const ipWhitelistHandler = async (req: Request, res: Response, next: Next
     const hostIp = req.ip;
     const clientIp = requestIp.getClientIp(req) || '';
 
-    console.log('######### whitelist');
-    console.log(req.originalUrl);
-    console.log(hostIp)
-
     if ((await getWhitelist()).has(hostIp)) {
         logger.log({
             request: true,

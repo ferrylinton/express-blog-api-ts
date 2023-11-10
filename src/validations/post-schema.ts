@@ -10,8 +10,8 @@ export const CreatePostSchema = object({
     }),
 
     description: object({
-        id: string().min(3).max(250),
-        en: string().min(3).max(250),
+        id: string().min(3).max(500),
+        en: string().min(3).max(500),
     }),
 
     content: object({

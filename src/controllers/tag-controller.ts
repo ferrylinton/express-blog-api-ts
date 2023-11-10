@@ -72,13 +72,10 @@ export async function update(req: Request, res: Response, next: NextFunction) {
                 
                 if (req.auth.username === tag.createdBy) {
                     await tagService.updateByOwner(updatedBy, { _id, updatedBy, updatedAt, ...validation.data });
-                } else if(req.auth.authorities?.includes(BLOG_ADMIN)){
-                    await tagService.update({ _id, updatedBy, updatedAt, ...validation.data });
+                    res.status(200).json({...tag, ...validation.data})
                 }else{
                     return res.status(403).json({ message: ACCESS_FORBIDDEN });
                 }
-
-                res.status(200).json({...tag, ...validation.data})
             } else {
                 res.status(400).send(validation.error.issues);
             }

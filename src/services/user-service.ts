@@ -86,8 +86,6 @@ export const updateLoginInfo = async ({ username, ...rest }: LoginInfo): Promise
 
 export const changePassword = async ({ username, passwordConfirm, ...user }: ChangePassword): Promise<UpdateResult> => {
     user.password = bcrypt.hashSync(user.password, 10);
-    console.log(username);
-    console.log(user);
     const userCollection = await getCollection<User>(USER_COLLECTION);
     return await userCollection.updateOne({ username }, { $set: user });
 }

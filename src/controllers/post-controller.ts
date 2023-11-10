@@ -59,29 +59,30 @@ export async function update(req: Request, res: Response, next: NextFunction) {
             return res.status(404).json({ message: DATA_IS_NOT_FOUND });
         }
 
-        let updateResult: UpdateResult = { acknowledged: false, matchedCount: 0, modifiedCount: 0, upsertedCount: 0, upsertedId: null };
-        const validation = UpdatePostSchema.safeParse(req.body);
+        const post = await postService.findById(req.params.id);
 
-        if (validation.success) {
-            const updatedAt = new Date();
-            const updatedBy = req.auth.username as string;
-            const _id = new ObjectId(req.params.id);
-            const owner = req.params.owner;
+        if (post) {
+            const validation = UpdatePostSchema.safeParse(req.body);
 
-            if (owner && owner !== updatedBy) {
-                return res.status(403).json({ message: ACCESS_FORBIDDEN });
-            } else if (owner) {
-                updateResult = await postService.updateByOwner(owner, { _id, updatedBy, updatedAt, ...validation.data });
+            if (validation.success) {
+                const updatedAt = new Date();
+                const updatedBy = req.auth.username as string;
+                const _id = new ObjectId(req.params.id);
+
+                if (req.auth.username === post.createdBy) {
+                    await postService.updateByOwner(updatedBy, { _id, updatedBy, updatedAt, ...validation.data });
+                    res.status(200).json({...post, ...validation.data})
+                }else{
+                    return res.status(403).json({ message: ACCESS_FORBIDDEN });
+                }
             } else {
-                updateResult = await postService.update({ _id, updatedBy, updatedAt, ...validation.data });
+                res.status(400).send(validation.error.issues);
             }
-
-            updateResult.modifiedCount
-                ? res.status(200).json({ message: DATA_IS_UPDATED })
-                : res.status(404).json({ message: DATA_IS_NOT_FOUND });
         } else {
-            res.status(400).send(validation.error.issues);
+            res.status(404).json({ message: DATA_IS_NOT_FOUND });
         }
+
+
     } catch (error) {
         next(error);
     }
@@ -93,7 +94,7 @@ export async function deleteById(req: Request, res: Response, next: NextFunction
             return res.status(404).json({ message: DATA_IS_NOT_FOUND });
         }
 
-        const post = await postService.findById(req.params.idOrSlug);
+        const post = await postService.findById(req.params.id);
 
         if (post) {
             if ((req.auth.username && post.createdBy) || (req.auth.authorities?.includes(BLOG_OWNER))) {

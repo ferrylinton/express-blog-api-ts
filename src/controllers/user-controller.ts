@@ -86,9 +86,6 @@ export async function changePasswordById(req: Request, res: Response, next: Next
 
         const user = await userService.findById(req.params.id);
         if (user) {
-            console.log(user);
-            console.log(req.body);
-            console.log({ username: user.username, ...req.body });
             const validation = ChangePasswordSchema.safeParse({ username: user.username, ...req.body });
             if (validation.success) {
                 const updateResult = await userService.changePassword({ updatedBy: user.username, ...validation.data });

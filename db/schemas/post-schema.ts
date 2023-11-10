@@ -36,11 +36,13 @@ export const createPostSchema = async (db: Db) => {
                                 "id": {
                                     "bsonType": "string",
                                     "minLength": 3,
+                                    "maxLength": 150,
                                     "description": "Must be a string and unique"
                                 },
                                 "en": {
                                     "bsonType": "string",
                                     "minLength": 3,
+                                    "maxLength": 150,
                                     "description": "Must be a string and unique"
                                 }
                             },
@@ -52,11 +54,13 @@ export const createPostSchema = async (db: Db) => {
                                 "id": {
                                     "bsonType": "string",
                                     "minLength": 3,
+                                    "maxLength": 500,
                                     "description": "Must be a string and unique"
                                 },
                                 "en": {
                                     "bsonType": "string",
                                     "minLength": 3,
+                                    "maxLength": 500,
                                     "description": "Must be a string and unique"
                                 }
                             },

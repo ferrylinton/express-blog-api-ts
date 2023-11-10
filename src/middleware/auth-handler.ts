@@ -18,10 +18,6 @@ export const authHandler = async (req: Request, res: Response, next: NextFunctio
             try {
 
                 const authData = await redisService.getAuthData(token);
-                console.log('############3 authHandler....')
-                console.log(req.url);
-                console.log(JSON.stringify(req.client));
-                console.log(JSON.stringify(authData));
 
                 if (authData) {
                     if (req.client.clientIp !== authData.clientIp) {

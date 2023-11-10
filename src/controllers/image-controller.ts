@@ -77,8 +77,6 @@ export async function deleteById(req: Request, res: Response, next: NextFunction
         const image = await imageService.findById(req.params.id);
 
         if (image) {
-            let deleteResult: DeleteResult = { acknowledged: false, deletedCount: 0 };
-
             if (req.auth.username === image.metadata.createdBy) {
                 await imageService.deleteByOwnerAndId((req.auth.username as string), _id);
             } else if (req.auth.authorities?.includes(IMAGE_ADMIN)) {

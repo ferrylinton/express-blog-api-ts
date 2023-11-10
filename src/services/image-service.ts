@@ -147,8 +147,7 @@ export const create = (bucket: GridFSBucket, createdBy: string, file: Express.Mu
         const { width, height } = sizeOf(Buffer.concat(buffer));
         setTimeout(() => {
             updateDimension(_id, width || 0, height || 0)
-                .then(updateResult => console.log(updateResult))
-                .catch(error => console.log(error));
+                .catch(error => logger.error(error.message));
         }, 2000);
     })
 
