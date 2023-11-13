@@ -1,14 +1,12 @@
 import { NextFunction, Request, Response } from 'express';
 import { getWhitelist } from '../services/whitelist-service';
-import requestIp from 'request-ip';
 import { logger } from "../configs/winston";
 
 const message = "Access Restricted";
 
 export const ipWhitelistHandler = async (req: Request, res: Response, next: NextFunction) => {
-    const hostIp = req.ip;
-    const clientIp = requestIp.getClientIp(req) || '';
-
+    const hostIp = req.header("x-forwarded-for") || '';
+    const clientIp = req.header("x-client-ip") || '';
     if ((await getWhitelist()).has(hostIp)) {
         logger.log({
             request: true,

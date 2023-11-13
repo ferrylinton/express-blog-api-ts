@@ -1,0 +1,15 @@
+{
+    "apps": [
+        {
+            "name": "blogapi",
+            "cwd": "/home/marmeamc/sourcecode/express-blog-api-ts",
+            "script": "./dist/server.js",
+            "instances": 1,
+            "exec_mode": "fork",
+            "args": "NODE_ENV=production",
+            "error_file": "error.log",
+            "out_file": "out.log",
+            "pid_file": "pid.log"
+        }
+    ]
+}

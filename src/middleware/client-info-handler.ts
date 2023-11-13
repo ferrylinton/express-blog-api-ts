@@ -1,11 +1,10 @@
 import { NextFunction, Request, Response } from 'express';
-import requestIp from 'request-ip';
 
 
 export const clientInfoHandler = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const hostIp = req.ip;
-        const clientIp = requestIp.getClientIp(req) || '';
+        const hostIp = req.header("x-forwarded-for") || '';
+        const clientIp = req.header("x-client-ip") || '';
         const userAgent = req.headers['user-agent'];
         req.client = {
             hostIp,

@@ -4,14 +4,13 @@ import * as postService from "../../src/services/post-service";
 import { createSlug } from '../../src/util/string-util';
 
 const markdownsFolder = join(process.env.ROOT_DIR || process.cwd(), `/db/markdowns`);
-const host = 'http://127.0.0.1:5001'
 const regex = /\]\((.+)(?=(\.(svg|gif|png|jpe?g)))/g;
 const createdBy = 'ferrylinton';
 
 const replaceUrl = (filePath: string) => {
     let content = fs.readFileSync(filePath, "utf-8");
     return content.replace(regex, (_fullResult, imagePath) => {
-        const newImagePath = `${host}/api/images/${imagePath}.${createdBy}`
+        const newImagePath = `/api/images/view/${imagePath}.${createdBy}`
         return `](${newImagePath}`;
     })
 }
@@ -24,7 +23,7 @@ export const initPostData = async () => {
     try {
         const arr: string[] = [];
 
-        for (let i = 0; i < 100; i++) {
+        for (let i = 0; i < 1; i++) {
             arr.push(padWithLeadingZeros(i))
         }
 

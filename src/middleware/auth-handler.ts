@@ -6,8 +6,7 @@ const PUBLIC_API_ALL_METHOD = ['/', '/auth/token']
 const PUBLIC_API_GET_METHOD = ['/api/images', '/api/posts', '/api/tags']
 
 export const authHandler = async (req: Request, res: Response, next: NextFunction) => {
-
-    if (PUBLIC_API_ALL_METHOD.indexOf(req.path) === 1 ||
+    if (PUBLIC_API_ALL_METHOD.includes(req.path) ||
         (req.method === 'GET' && checkIfStringStartsWith(req.path, PUBLIC_API_GET_METHOD))) {
         // Public API, no authentication
         next();
