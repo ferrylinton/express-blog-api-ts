@@ -14,8 +14,7 @@ const options: AccessControl.AclOptions = {
 		logger.info(clientIp + (access ? ' accessed.' : ' denied.'));
 	},
 	statusCode: "401",
-	redirectTo: '',
-	message: 'Unauthorized'
+	redirectTo: ''
 };
 
 export const ipWhitelistHandler = AccessControl(options);

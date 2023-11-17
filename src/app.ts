@@ -5,11 +5,10 @@ import setLocales from './configs/i18n';
 import { authHandler } from './middleware/auth-handler';
 import { clientInfoHandler } from './middleware/client-info-handler';
 import { corsHandler } from './middleware/cors-handler';
-import { ipWhitelistHandler } from './middleware/ip-whitelist-handler';
 import { notFoundHandler } from './middleware/not-found-handler';
+import { rateLimitHandler } from './middleware/rate-limit-handler';
 import { restErrorHandler } from './middleware/rest-error-handler';
 import setRoutes from './routers';
-import { rateLimitHandler } from './middleware/rate-limit-handler';
 
 
 const app: Express = express();
@@ -17,7 +16,6 @@ const app: Express = express();
 app.set('trust proxy', 1);
 app.use(favicon(__dirname + '/public/favicon.ico'));
 app.use(rateLimitHandler);
-app.use(ipWhitelistHandler);
 app.use(clientInfoHandler);
 app.use(corsHandler);
 app.use(express.json());
