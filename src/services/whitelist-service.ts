@@ -3,16 +3,8 @@ import { getCollection } from "../configs/mongodb";
 import { WHITELIST_COLLECTION } from "../configs/db-constant";
 import { BadRequestError } from "../errors/badrequest-error";
 import { Create, Update, WithAudit } from "../types/common-type";
+import { allows } from "../middleware/ip-whitelist-handler";
 
-const whitelistCache = new Set<string>();
-
-export const getWhitelist = async () => {
-    if (whitelistCache.size === 0) {
-        await reload();
-    }
-
-    return whitelistCache;
-}
 
 export const reload = async (): Promise<void> => {
     const whitelistsCollection = await getCollection<{ ip: string }>(WHITELIST_COLLECTION);
@@ -20,10 +12,10 @@ export const reload = async (): Promise<void> => {
         projection: { _id: 0, ip: 1, createdAt: 1 },
     });
 
-    whitelistCache.clear()
+    allows.splice(0, allows.length);
     for await (const doc of cursor) {
         const { ip } = doc;
-        whitelistCache.add(ip)
+        allows.push(ip)
     }
 }
 

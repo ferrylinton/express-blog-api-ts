@@ -4,6 +4,7 @@ import { DATA_IS_DELETED, DATA_IS_NOT_FOUND, DATA_IS_UPDATED } from '../configs/
 import * as whitelistService from '../services/whitelist-service';
 import { CreateWhitelistSchema, UpdateWhitelistSchema } from '../validations/whitelist-schema';
 
+
 export async function reload(_req: Request, res: Response, next: NextFunction) {
     try {
         await whitelistService.reload()
