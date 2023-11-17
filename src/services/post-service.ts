@@ -122,6 +122,20 @@ export const find = async (tag: string | null, keyword: string | null, page: num
     };
 }
 
+export const findLatest = async () => {
+    const postCollection = await getCollection<WithAudit<Post>>(POST_COLLECTION);
+    const cursor = postCollection.find().sort({ createdDate: -1 }).limit(10);
+
+    const posts: Array<WithAudit<Post>> = [];
+    
+    for await (const doc of cursor) {
+        const { _id, ...rest } = doc;
+        posts.push({ id: _id, ...rest });
+    }
+
+    return posts;
+}
+
 export const findById = async (id: string): Promise<WithAudit<Post> | null> => {
     const postCollection = await getCollection<WithAudit<Post>>(POST_COLLECTION);
     const post = await postCollection.findOne({ _id: new ObjectId(id) });

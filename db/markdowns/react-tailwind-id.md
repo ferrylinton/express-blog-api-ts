@@ -57,7 +57,7 @@ React adalah librari javascript yang digunakan untuk membangun antar muka aplika
 
 1. Lihat tautan ***http://127.0.0.1:3000/***
 
-    ![create-react-app-init.png](create-react-app-init.png)
+    ![create-react-app-init.ferrylinton.png](create-react-app-init.ferrylinton.png)
 
 1. Instal librari Tailwind CSS
 
@@ -119,8 +119,8 @@ React adalah librari javascript yang digunakan untuk membangun antar muka aplika
 
 1. Lihat tautan ***http://127.0.0.1:3000/***
 
-    ![react-tailwind-init.png](react-tailwind-init.png)
+    ![react-tailwind-init.ferrylinton.png](react-tailwind-init.ferrylinton.png)
 
-## Lihat kode di Github
+## Lihat kode
 
- https://github.com/ferrylinton/react-sample/tree/main/tailwind-ts
+ - [https://github.com/ferrylinton/react-sample/tree/main/tailwind-ts](https://github.com/ferrylinton/react-sample/tree/main/tailwind-ts "Kode")

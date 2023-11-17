@@ -18,8 +18,14 @@ export async function find(req: Request, res: Response, next: NextFunction) {
     }
 };
 
+
 export async function findByIdOrSlug(req: Request, res: Response, next: NextFunction) {
     try {
+        if(req.params.idOrSlug === 'latest'){
+            const posts = await postService.findLatest();
+            return res.status(200).json(posts);
+        }
+
         const post = ObjectId.isValid(req.params.idOrSlug) ?
             await postService.findById(req.params.idOrSlug) :
             await postService.findBySlug(req.params.idOrSlug);
@@ -71,8 +77,8 @@ export async function update(req: Request, res: Response, next: NextFunction) {
 
                 if (req.auth.username === post.createdBy) {
                     await postService.updateByOwner(updatedBy, { _id, updatedBy, updatedAt, ...validation.data });
-                    res.status(200).json({...post, ...validation.data})
-                }else{
+                    res.status(200).json({ ...post, ...validation.data })
+                } else {
                     return res.status(403).json({ message: ACCESS_FORBIDDEN });
                 }
             } else {

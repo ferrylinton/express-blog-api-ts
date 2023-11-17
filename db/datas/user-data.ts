@@ -1,6 +1,9 @@
 import * as auth from "../../src/configs/auth-constant";
 import * as userService from "../../src/services/user-service";
 
+const password = process.env.PASSWORD || "password";
+const passwordConfirm = password;
+
 export const initUserData = async () => {
     try {
         const createdBy = auth.SYSTEM;
@@ -8,7 +11,8 @@ export const initUserData = async () => {
 
         await userService.create({
             username: "system",
-            password: "system",
+            password,
+            passwordConfirm,
             email: "system@gmail.com",
             locked: true,
             activated: false,
@@ -21,6 +25,7 @@ export const initUserData = async () => {
         await userService.create({
             username: "admin111",
             password: "admin111",
+            passwordConfirm: "admin111",
             email: "admin111@gmail.com",
             locked: false,
             activated: true,
@@ -43,9 +48,10 @@ export const initUserData = async () => {
         });
 
         await userService.create({
-            username: "author111",
-            password: "author111",
-            email: "author111@gmail.com",
+            username: "ferrylinton",
+            password,
+            passwordConfirm,
+            email: "ferrylinton@gmail.com",
             locked: false,
             activated: true,
             loginAttempt: 1,
@@ -54,25 +60,6 @@ export const initUserData = async () => {
             authorities: [
                 auth.BASIC,
                 auth.READ_WHITELIST_DATA,
-                auth.READ_USER_DATA,
-                auth.BLOG_OWNER,
-                auth.IMAGE_OWNER
-            ]
-        });
-
-        await userService.create({
-            username: "author222",
-            password: "author222",
-            email: "author222@gmail.com",
-            locked: false,
-            activated: true,
-            loginAttempt: 1,
-            createdBy,
-            createdAt,
-            authorities: [
-                auth.BASIC,
-                auth.READ_WHITELIST_DATA,
-                auth.READ_USER_DATA,
                 auth.BLOG_OWNER,
                 auth.IMAGE_OWNER
             ]

@@ -1,6 +1,6 @@
 import appRoot from 'app-root-path';
 import { createLogger, format, transports } from 'winston';
-import { LOG_FILE, LOG_REQUEST } from './env-constant';
+import { LOG_CONSOLE, LOG_FILE, LOG_REQUEST } from './env-constant';
 const { combine, timestamp, printf, errors } = format;
 
 const timestampFormat = timestamp({
@@ -8,7 +8,7 @@ const timestampFormat = timestamp({
 });
 
 const requestFilter = format((info, opts) => {
-    if (info.request)
+    if (info.request && info.request === true)
         return info;
     else
         return false;
@@ -16,7 +16,7 @@ const requestFilter = format((info, opts) => {
 });
 
 const appFilter = format((info, opts) => {
-    if (info.request)
+    if (info.request && info.request === true)
         return false;
     else
         return info;
@@ -47,7 +47,7 @@ export const logger = createLogger({
             filename: `${appRoot}/logs/app.log`,
             handleExceptions: true,
             maxsize: 5242880, // 5MB
-            maxFiles: 5,
+            maxFiles: 10,
             format: combine(appFilter(), timestampFormat, customFormat)
         }),
         new transports.File({
@@ -55,12 +55,12 @@ export const logger = createLogger({
             filename: `${appRoot}/logs/request.log`,
             handleExceptions: true,
             maxsize: 5242880, // 5MB
-            maxFiles: 5,
+            maxFiles: 10,
             format: combine(requestFilter(), timestampFormat, customFormat)
         }),
         new transports.Console({
-            level: "debug",
-            format: combine(appFilter(), format.colorize(), timestampFormat, customFormat)
+            level: LOG_CONSOLE,
+            format: combine(format.colorize(), timestampFormat, customFormat)
         })
 
     ],

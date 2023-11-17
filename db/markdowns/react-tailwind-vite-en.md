@@ -45,7 +45,7 @@ React is a javascript library used to build application interfaces. Tailwind CSS
 
 1. Go to url ***http://localhost:5173/***
 
-    ![create-react-vite-init.png](create-react-vite-init.png)
+    ![create-react-vite-init.ferrylinton.png](create-react-vite-init.ferrylinton.png)
 
 
 
@@ -108,7 +108,7 @@ React is a javascript library used to build application interfaces. Tailwind CSS
 
 1. Go to url ***http://127.0.0.1:5173/***
 
-    ![create-react-tailwind-vite-init.png](create-react-tailwind-vite-init.png)
+    ![create-react-tailwind-vite-init.ferrylinton.png](create-react-tailwind-vite-init.ferrylinton.png)
 
 
 1. Locally preview production build
@@ -136,6 +136,6 @@ React is a javascript library used to build application interfaces. Tailwind CSS
 
     Go to url ***http://127.0.0.1:4173/***
 
-## See source code on Github
+## See source code
 
- https://github.com/ferrylinton/react-sample/tree/main/tailwind-vite-ts
+- [https://github.com/ferrylinton/react-sample/tree/main/tailwind-vite-ts](https://github.com/ferrylinton/react-sample/tree/main/tailwind-vite-ts "Source Code")

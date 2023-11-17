@@ -11,19 +11,19 @@ import { initWhitelistData } from "./datas/whitelist-data";
     logger.info('[MONGODB] init data');
 
     try {
-
+        await initImageData();
         await initWhitelistData();
         await initAuthorityData();
         await initUserData();
         await initTagData();
         await initPostData();
-        await initImageData();
+        
 
     } catch (error: any) {
         console.log(error);
     } finally {
         setTimeout(function () {
             process.exit();
-        }, 2000);
+        }, 5000);
     }
 })()

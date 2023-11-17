@@ -55,7 +55,7 @@ React is a javascript library used to build application interfaces. Tailwind CSS
 
 1. Go to url ***http://127.0.0.1:3000/***
 
-    ![create-react-app-init.png](create-react-app-init.png)
+    ![create-react-app-init.ferrylinton.png](create-react-app-init.ferrylinton.png)
 
 1. Install Tailwind CSS library
 
@@ -117,7 +117,7 @@ React is a javascript library used to build application interfaces. Tailwind CSS
 
 1. Go to url ***http://127.0.0.1:3000/***
 
-    ![react-tailwind-init.png](react-tailwind-init.png)
+    ![react-tailwind-init.ferrylinton.png](react-tailwind-init.ferrylinton.png)
 
 1. Test production code on local computer with [npm serve](https://github.com/vercel/serve)
 
@@ -136,6 +136,6 @@ React is a javascript library used to build application interfaces. Tailwind CSS
     Go to url ***http://127.0.0.1:3001/***
 
 
-## See source code on Github
+## See source code
 
- https://github.com/ferrylinton/react-sample/tree/main/tailwind-ts
+ - [https://github.com/ferrylinton/react-sample/tree/main/tailwind-ts](https://github.com/ferrylinton/react-sample/tree/main/tailwind-ts "Source Code")
