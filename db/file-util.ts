@@ -1,0 +1,87 @@
+import fs from 'fs';
+import { join, extname } from 'path';
+import * as imageService from "../src/services/image-service";
+import * as tagService from "../src/services/tag-service";
+import * as postService from "../src/services/post-service";
+import { fromStream } from 'file-type';
+
+
+export const getAllFiles = async function (dirPath: string, arrayOfFiles?: string[]) {
+    const files = fs.readdirSync(dirPath)
+
+    files.forEach(function (file) {
+        if (fs.statSync(join(dirPath, file)).isDirectory()) {
+            getAllFiles(join(dirPath, file), arrayOfFiles)
+        } else {
+            if (extname(join(dirPath, file)) === '.json') {
+                savePostData(dirPath, file);
+            } else if ([".png", ".jpg", ".jpeg"].includes(extname(file))) {
+                saveImageData(dirPath, file);
+            }
+        }
+    })
+
+}
+
+const savePostData = async (dirPath: string, file: string) => {
+    const post = JSON.parse(fs.readFileSync(join(dirPath, file), "utf-8"));
+    saveTagData(post.tags, post.createdBy);
+
+    try {
+        post.createdAt = new Date();
+        post.content = {};
+        post.content.id = fs.readFileSync(join(dirPath, `${post.slug}-id.md`), "utf-8");
+        post.content.en = fs.readFileSync(join(dirPath, `${post.slug}-en.md`), "utf-8");
+        await postService.create(post); 
+    } catch (error) {
+        console.log(error);
+    }
+}
+
+const saveTagData = async (tags: string[], createdBy: string) => {
+    const createdAt = new Date();
+
+    tags.forEach(async name => {
+        try {
+            await tagService.create({
+                name,
+                createdBy,
+                createdAt
+            });
+        } catch (error) {
+            console.log(error);
+        }
+    })
+}
+
+const saveImageData = async (dirPath: string, originalName: string) => {
+    try {
+        const bucket = await imageService.getImagesBucket();
+
+        const stream = fs.createReadStream(join(dirPath, originalName));
+        const { size } = fs.statSync(join(dirPath, originalName));
+        const type = await fromStream(fs.createReadStream(join(dirPath, originalName)));
+        const file: Express.Multer.File = {
+            fieldname: '',
+            originalname: originalName,
+            encoding: '',
+            mimetype: type?.mime || '',
+            size: 0,
+            stream,
+            destination: '',
+            filename: '',
+            path: '',
+            buffer: Buffer.from('')
+        };
+
+        imageService.create(bucket, "ferrylinton", file, (error, file) => {
+            if (error) {
+                console.log(error);
+            } else {
+                console.log(`${file?.originalname} is uploaded as ${file?.filename}, size ${size}`);
+            }
+        });
+    } catch (error) {
+        console.log(error);
+    }
+}

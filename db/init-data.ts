@@ -1,23 +1,20 @@
+import { join } from 'path';
 import { logger } from '../src/configs/winston';
 import { initAuthorityData } from "./datas/authority-data";
-import { initImageData } from './datas/image-data';
-import { initPostData } from './datas/post-data';
-import { initTagData } from './datas/tag-data';
 import { initUserData } from './datas/user-data';
 import { initWhitelistData } from "./datas/whitelist-data";
+import { getAllFiles } from './file-util';
+
 
 
 (async () => {
     logger.info('[MONGODB] init data');
 
     try {
-        await initImageData();
+        await getAllFiles(join(process.env.ROOT_DIR || process.cwd(), 'markdown'));
         await initWhitelistData();
         await initAuthorityData();
         await initUserData();
-        await initTagData();
-        await initPostData();
-        
 
     } catch (error: any) {
         console.log(error);

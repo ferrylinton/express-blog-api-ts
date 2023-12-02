@@ -137,7 +137,7 @@ export const create = (bucket: GridFSBucket, createdBy: string, file: Express.Mu
     }
 
 
-    const filename = `${arr.length > 0 ? arr[0] : 'unknown'}.${createdBy}.${IMAGE_MIME_TYPES[file.mimetype as keyof typeof IMAGE_MIME_TYPES]}`;
+    const filename = `${arr.length > 0 ? arr[0] : 'unknown'}.${IMAGE_MIME_TYPES[file.mimetype as keyof typeof IMAGE_MIME_TYPES]}`;
     const _id = new ObjectId();
     const tunnel = new PassThrough();
     let buffer = Array<any>();

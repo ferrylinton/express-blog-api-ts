@@ -1,0 +1,17 @@
+{
+    "slug": "eslint-prettier-commonjs-setup",
+    "tags": [
+        "NodeJS",
+        "ESLint",
+        "Prettier"
+    ],
+    "createdBy": "ferrylinton",
+    "title": {
+        "id": "Mempersiapkan Aplikasi Node Dengan Eslint dan Prettier (Common JS)",
+        "en": "Setup Node Application With Eslint And Prettier (Common JS)"
+    },
+    "description": {
+        "id": "Pengembang Perangkat Lunak mungkin menggunakan gaya pengkodean yang berbeda dari pengembang perangkat lunak lainnya. Jika dalam satu proyek terdapat beberapa gaya pengkodean maka akan menimbulkan perdebatan di kalangan pengembang. Pengembang Perangkat Lunak dapat menggunakan Prettier sebagai panduan gaya pengkodean.",
+        "en": "Software Developers may use different coding styles than other software developers. If in one project there are multiple coding styles it will cause debate among developers. Software Developers can use Prettier as style guide."
+    }
+}
