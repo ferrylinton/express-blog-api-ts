@@ -1,9 +1,9 @@
 {
     "slug": "eslint-prettier-commonjs-setup",
     "tags": [
-        "NodeJS",
-        "ESLint",
-        "Prettier"
+        "nodejs",
+        "eslint",
+        "prettier"
     ],
     "createdBy": "ferrylinton",
     "title": {

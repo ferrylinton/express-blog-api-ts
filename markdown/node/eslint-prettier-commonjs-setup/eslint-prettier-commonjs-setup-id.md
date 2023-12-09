@@ -13,7 +13,7 @@ Pengembang Perangkat Lunak mungkin menggunakan gaya pengkodean yang berbeda dari
 1.  [ESLint](https://eslint.org/docs/latest/use/getting-started)
 1.  [Prettier](https://prettier.io/docs/en/)
 
-##  Buat aplikasi node
+##  Buat Aplikasi Node
 
 Lihat postingan ini **[Mempersiapkan Aplikasi Node Dengan Eslint (Common JS)](https://marmeam.com/post/eslint-commonjs-setup)**. 
 

@@ -33,6 +33,7 @@ export const findById = async (_id: ObjectId): Promise<WithAudit<Tag> | null> =>
 }
 
 export const create = async (tag: Create<Tag>): Promise<WithAudit<Tag>> => {
+    tag.name = tag.name.toLowerCase();
     const tagCollection = await getCollection<WithAudit<Tag>>(TAG_COLLECTION);
     const current = await tagCollection.findOne({ name: tag.name });
 

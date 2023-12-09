@@ -1,0 +1,18 @@
+{
+    "slug": "jest-simple",
+    "tags": [
+        "nodejs",
+        "eslint",
+        "prettier",
+        "jest"
+    ],
+    "createdBy": "ferrylinton",
+    "title": {
+        "id": "Contoh Sederhana JEST",
+        "en": "Simple Example of JEST"
+    },
+    "description": {
+        "id": "Pengujian unit bertujuan untuk memeriksa sebagian kecil dari kode aplikasi, yang biasanya merupakan fungsi dalam kode aplikasi. Posting ini berisi contoh aplikasi node pengujian unit menggunakan Jest. Jest adalah Kerangka Pengujian JavaScript yang menyenangkan dan berfokus pada kesederhanaan.",
+        "en": "Unit testing aims to check a small portion of the application code, which is usually a function in the application code. This post contains an example of a unit testing node application using Jest. Jest is a fun JavaScript Testing Framework with a focus on simplicity."
+    }
+}

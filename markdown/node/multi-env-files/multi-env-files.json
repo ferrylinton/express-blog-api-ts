@@ -1,0 +1,19 @@
+{
+    "slug": "multi-env-files",
+    "tags": [
+        "nodejs",
+        "eslint",
+        "prettier",
+        "jest",
+        "dotenv"
+    ],
+    "createdBy": "ferrylinton",
+    "title": {
+        "id": "Menyiapkan Beberapa Berkas .env Untuk Pengembangan, Pengujian, dan Produksi",
+        "en": "Setup Multiple .env Files For Development, Testing And Production"
+    },
+    "description": {
+        "id": "Saat membangun aplikasi, ada kemungkinan kita harus menyediakan beberapa konfigurasi berbeda untuk lingkungan pengembangan, pengujian, dan produksi. Posting ini akan menunjukkan cara membuat beberapa konfigurasi untuk beberapa file env menggunakan dotenv.",
+        "en": "When building an application, it is likely that we will have to provide several different configurations for development, test, and production environments. This post will show you how to create some configurations for multiple env files using dotenv."
+    }
+}

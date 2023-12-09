@@ -1,0 +1,19 @@
+{
+    "slug": "mongodb-simple",
+    "tags": [
+        "nodejs",
+        "mongodb",
+        "eslint",
+        "prettier",
+        "jest"
+    ],
+    "createdBy": "ferrylinton",
+    "title": {
+        "id": "Contoh Sederhana Mongodb Dengan NodeJS",
+        "en": "Simple Example of Mongodb With NodeJS"
+    },
+    "description": {
+        "id": "Posting ini menunjukkan cara menyiapkan aplikasi node yang menggunakan driver MongoDB Node.js untuk terhubung ke MongoDB. Memuat kode untuk terhubung ke MongoDB dan buat fungsi untuk query data.",
+        "en": "This post shows how to setup a node application that uses the MongoDB Node.js driver to connect to a MongoDB. Add code to connect to a MongoDB and create a function to query data."
+    }
+}

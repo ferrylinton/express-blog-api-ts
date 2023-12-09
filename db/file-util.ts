@@ -49,7 +49,7 @@ const saveTagData = async (tags: string[], createdBy: string) => {
                 createdAt
             });
         } catch (error) {
-            console.log(error);
+            console.log(error.message);
         }
     })
 }

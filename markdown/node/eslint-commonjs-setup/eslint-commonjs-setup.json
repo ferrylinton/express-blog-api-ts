@@ -1,8 +1,8 @@
 {
     "slug": "eslint-commonjs-setup",
     "tags": [
-        "NodeJS",
-        "ESLint"
+        "nodejs",
+        "eslint"
     ],
     "createdBy": "ferrylinton",
     "title": {
