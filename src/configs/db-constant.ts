@@ -10,8 +10,6 @@ export const POST_EN_COLLECTION = "postsEN";
 
 export const TAG_COLLECTION = "tags";
 
-export const TODO_COLLECTION = "todoes";
-
 export const USER_COLLECTION = "users";
 
 export const WHITELIST_COLLECTION = "whitelists";

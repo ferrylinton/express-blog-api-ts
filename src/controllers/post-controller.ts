@@ -26,7 +26,7 @@ export async function findByIdOrSlug(req: Request, res: Response, next: NextFunc
             return res.status(200).json(posts);
         }
 
-        const post = ObjectId.isValid(req.params.idOrSlug) ?
+        const post = ObjectId.isValid(req.params.idOrSlug) && req.params.idOrSlug.length === 24 ?
             await postService.findById(req.params.idOrSlug) :
             await postService.findBySlug(req.params.idOrSlug);
 

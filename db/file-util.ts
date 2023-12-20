@@ -15,7 +15,7 @@ export const getAllFiles = async function (dirPath: string, arrayOfFiles?: strin
         } else {
             if (extname(join(dirPath, file)) === '.json') {
                 savePostData(dirPath, file);
-            } else if ([".png", ".jpg", ".jpeg"].includes(extname(file))) {
+            } else if ([".png", ".jpg", ".jpeg", ".svg"].includes(extname(file))) {
                 saveImageData(dirPath, file);
             }
         }
@@ -65,7 +65,7 @@ const saveImageData = async (dirPath: string, originalName: string) => {
             fieldname: '',
             originalname: originalName,
             encoding: '',
-            mimetype: type?.mime || '',
+            mimetype: extname(originalName) === '.svg' ? 'image/svg+xml' : type?.mime || '',
             size: 0,
             stream,
             destination: '',

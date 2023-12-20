@@ -1,0 +1,17 @@
+{
+    "slug": "express-rest-mongodb-crud-jest",
+    "tags": [
+        "express",
+        "jest",
+        "supertest"
+    ],
+    "createdBy": "ferrylinton",
+    "title": {
+        "id": "Buat Tes Integrasi Untuk Operasi CRUD Dengan Expressjs, Mongodb Dan JEST",
+        "en": "Create Integration Test For CRUD Operations With Expressjs, Mongodb And JEST"
+    },
+    "description": {
+        "id": "Postingan ini lanjutan dari postingan [Membangun Aplikasi CRUD Dengan Expressjs dan Mongodb](https://marmeam.com/post/express-rest-mongodb-crud). Pada postingan ini akan menunjukkan cara membuat tes integrasi dengan menggunakan JEST.",
+        "en": "Postingan ini lanjutan dari postingan [Building CRUD Application With Expressjs and Mongodb](https://marmeam.com/post/express-rest-mongodb-crud). Pada postingan ini akan menunjukkan cara membuat integration test dengan menggunakan JEST"
+    }
+}

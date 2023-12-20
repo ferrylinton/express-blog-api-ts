@@ -5,7 +5,6 @@ import { createAuthoritySchema } from "./schemas/authority-schema";
 import { createImageBucketSchema } from "./schemas/image-bucket-schema";
 import { createPostSchema } from "./schemas/post-schema";
 import { createTagSchema } from "./schemas/tag-schema";
-import { createTodoCollection } from "./schemas/todo-schema";
 import { createUserchema } from "./schemas/user-schema";
 import { createWhitelistSchema } from "./schemas/whitelist-schema";
 
@@ -28,10 +27,6 @@ import { createWhitelistSchema } from "./schemas/whitelist-schema";
 
         if (!collectionNames.includes(auth.WHITELIST_COLLECTION)) {
             await createWhitelistSchema(db);
-        }
-
-        if (!collectionNames.includes(auth.TODO_COLLECTION)) {
-            await createTodoCollection(db);
         }
 
         if (!collectionNames.includes(auth.AUTHORITY_COLLECTION)) {
