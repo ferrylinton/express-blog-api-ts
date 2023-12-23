@@ -5,6 +5,7 @@ import { PAGE_SIZE } from "../configs/pagination-constant";
 import { logger } from "../configs/winston";
 import { Create, Pageable, Update, WithAudit } from "../types/common-type";
 import { Post } from "../types/post-type";
+import * as counterService from "./counter-service"
 
 
 export const find = async (tag: string | null, keyword: string | null, page: number) => {
@@ -124,7 +125,7 @@ export const find = async (tag: string | null, keyword: string | null, page: num
 
 export const findLatest = async () => {
     const postCollection = await getCollection<WithAudit<Post>>(POST_COLLECTION);
-    const cursor = postCollection.find().sort({ createdDate: -1 }).limit(10);
+    const cursor = postCollection.find().sort({ createdDate: -1, slug: 1 }).limit(10);
 
     const posts: Array<WithAudit<Post>> = [];
     
@@ -153,8 +154,10 @@ export const findBySlug = async (slug: string): Promise<WithAudit<Post> | null> 
     const post = await postCollection.findOne({ slug });
 
     if (post) {
+        const counter = await counterService.findBySlug(slug);
+        const viewed = counter ? counter.count + 1 : 1;
         const { _id, ...rest } = post;
-        return { id: _id, ...rest };
+        return { id: _id, viewed, ...rest };
     }
 
     return null;

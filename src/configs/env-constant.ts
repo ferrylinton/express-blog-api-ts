@@ -1,4 +1,5 @@
 import dotenv from 'dotenv';
+import { join } from 'path';
 
 dotenv.config();
 
@@ -42,3 +43,5 @@ export const REDIS_PREFIX = process.env.REDIS_PREFIX || 'blogapi';
 export const LOG_CONSOLE = process.env.LOG_CONSOLE || 'debug';
 export const LOG_FILE = process.env.LOG_FILE || 'warn';
 export const LOG_REQUEST = process.env.LOG_REQUEST || 'debug';
+
+export const MARKDOWN_FOLDER = process.env.MARKDOWN_FOLDER || join(process.env.ROOT_DIR || process.cwd(), 'markdown');

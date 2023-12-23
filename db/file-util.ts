@@ -9,14 +9,14 @@ import { fromStream } from 'file-type';
 export const getAllFiles = async function (dirPath: string, arrayOfFiles?: string[]) {
     const files = fs.readdirSync(dirPath)
 
-    files.forEach(function (file) {
+    files.forEach(async function (file) {
         if (fs.statSync(join(dirPath, file)).isDirectory()) {
             getAllFiles(join(dirPath, file), arrayOfFiles)
         } else {
             if (extname(join(dirPath, file)) === '.json') {
-                savePostData(dirPath, file);
+                await savePostData(dirPath, file);
             } else if ([".png", ".jpg", ".jpeg", ".svg"].includes(extname(file))) {
-                saveImageData(dirPath, file);
+                await saveImageData(dirPath, file);
             }
         }
     })
@@ -24,8 +24,9 @@ export const getAllFiles = async function (dirPath: string, arrayOfFiles?: strin
 }
 
 const savePostData = async (dirPath: string, file: string) => {
+    console.log('POST :: slug = ', file);
     const post = JSON.parse(fs.readFileSync(join(dirPath, file), "utf-8"));
-    saveTagData(post.tags, post.createdBy);
+    await saveTagData(post.tags, post.createdBy);
 
     try {
         post.createdAt = new Date();
@@ -43,6 +44,7 @@ const saveTagData = async (tags: string[], createdBy: string) => {
 
     tags.forEach(async name => {
         try {
+            console.log('TAG :: name = ', name)
             await tagService.create({
                 name,
                 createdBy,
@@ -78,7 +80,7 @@ const saveImageData = async (dirPath: string, originalName: string) => {
             if (error) {
                 console.log(error);
             } else {
-                console.log(`${file?.originalname} is uploaded as ${file?.filename}, size ${size}`);
+                console.log(`${file?.originalname} is uploaded, size ${size}`);
             }
         });
     } catch (error) {

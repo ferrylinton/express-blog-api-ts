@@ -18,6 +18,7 @@ const callback = () => {
 
     app.listen(parseInt(PORT), "0.0.0.0", callback);
   } catch (error) {
+    console.error(error);
     logger.error(error);
     process.exit();
   }

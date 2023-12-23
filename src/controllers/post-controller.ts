@@ -1,9 +1,12 @@
 import { NextFunction, Request, Response } from 'express';
-import { DeleteResult, ObjectId, UpdateResult } from 'mongodb';
-import { ACCESS_FORBIDDEN, DATA_IS_DELETED, DATA_IS_NOT_FOUND, DATA_IS_UPDATED } from '../configs/message-constant';
+import { ObjectId } from 'mongodb';
+import { BLOG_OWNER } from '../configs/auth-constant';
+import { ACCESS_FORBIDDEN, DATA_IS_DELETED, DATA_IS_NOT_FOUND } from '../configs/message-constant';
+import { logger } from '../configs/winston';
+import * as counterService from '../services/counter-service';
+import * as postLogService from '../services/post-log-service';
 import * as postService from '../services/post-service';
 import { CreatePostSchema, UpdatePostSchema } from '../validations/post-schema';
-import { BLOG_OWNER } from '../configs/auth-constant';
 
 
 export async function find(req: Request, res: Response, next: NextFunction) {
@@ -21,7 +24,7 @@ export async function find(req: Request, res: Response, next: NextFunction) {
 
 export async function findByIdOrSlug(req: Request, res: Response, next: NextFunction) {
     try {
-        if(req.params.idOrSlug === 'latest'){
+        if (req.params.idOrSlug === 'latest') {
             const posts = await postService.findLatest();
             return res.status(200).json(posts);
         }
@@ -31,6 +34,7 @@ export async function findByIdOrSlug(req: Request, res: Response, next: NextFunc
             await postService.findBySlug(req.params.idOrSlug);
 
         if (post) {
+            saveCounterAndLog(req, post.slug)
             res.status(200).json(post);
         } else {
             res.status(404).json({ message: DATA_IS_NOT_FOUND });
@@ -39,6 +43,18 @@ export async function findByIdOrSlug(req: Request, res: Response, next: NextFunc
         next(error);
     }
 };
+
+function saveCounterAndLog(req: Request, slug: string) {
+    counterService.update(slug)
+    .catch(error => {
+        logger.error(error);
+    });
+
+    postLogService.create(slug, req.client.clientIp || '', req.client.userAgent || '')
+    .catch(error => {
+        logger.error(error);
+    });
+}
 
 export async function create(req: Request, res: Response, next: NextFunction) {
     try {

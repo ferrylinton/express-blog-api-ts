@@ -13,5 +13,5 @@ export type Post = {
         id: string,
         en: string
     },
-    score?: any
+    viewed?: any
 }

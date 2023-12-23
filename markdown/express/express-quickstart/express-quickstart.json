@@ -1,0 +1,15 @@
+{
+    "slug": "express-quickstart",
+    "tags": [
+        "expressjs"
+    ],
+    "createdBy": "ferrylinton",
+    "title": {
+        "id": "Pengenalan Singkat ExpressJS",
+        "en": "A Brief Introduction to ExpressJS"
+    },
+    "description": {
+        "id": "ExpressJS adalah framework Node.js yang sederhana dan fleksibel, untuk membangun aplikasi Web dan aplikasi REST API.",
+        "en": "ExpressJS is a minimal and flexible Node.js framework, to build Web application and REST API application."
+    }
+}

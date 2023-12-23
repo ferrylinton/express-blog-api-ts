@@ -4,6 +4,7 @@ import { initAuthorityData } from "./datas/authority-data";
 import { initUserData } from './datas/user-data';
 import { initWhitelistData } from "./datas/whitelist-data";
 import { getAllFiles } from './file-util';
+import { MARKDOWN_FOLDER } from '../src/configs/env-constant';
 
 
 
@@ -11,7 +12,7 @@ import { getAllFiles } from './file-util';
     logger.info('[MONGODB] init data');
 
     try {
-        await getAllFiles(join(process.env.ROOT_DIR || process.cwd(), 'markdown'));
+        await getAllFiles(MARKDOWN_FOLDER);
         await initWhitelistData();
         await initAuthorityData();
         await initUserData();
