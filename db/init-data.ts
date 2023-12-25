@@ -12,7 +12,6 @@ import { MARKDOWN_FOLDER } from '../src/configs/env-constant';
     logger.info('[MONGODB] init data');
 
     try {
-        await getAllFiles(MARKDOWN_FOLDER);
         await initWhitelistData();
         await initAuthorityData();
         await initUserData();

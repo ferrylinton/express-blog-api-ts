@@ -2,7 +2,7 @@
     "apps": [
         {
             "name": "blogapi",
-            "cwd": "~/sourcecode/express-blog-api-ts",
+            "cwd": "/home/marmeamc/sourcecode/express-blog-api-ts",
             "script": "./dist/server.js",
             "instances": 1,
             "exec_mode": "fork",
