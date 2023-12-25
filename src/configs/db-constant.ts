@@ -15,3 +15,5 @@ export const USER_COLLECTION = "users";
 export const WHITELIST_COLLECTION = "whitelists";
 
 export const COUNTER_COLLECTION = "counters";
+
+export const TODO_COLLECTION = "todoes";
