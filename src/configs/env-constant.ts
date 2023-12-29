@@ -27,7 +27,7 @@ if (!process.env.MONGODB_DATABASE) {
     throw new Error('Invalid environment variable: "MONGODB_DATABASE"')
 }
 
-export const ENV = process.env.NODE_ENV || 'development';
+export const NODE_ENV = process.env.NODE_ENV || 'development';
 export const PORT = process.env.PORT || '5001';
 
 export const MONGODB_URL = process.env.MONGODB_URL;

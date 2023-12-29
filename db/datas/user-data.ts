@@ -1,7 +1,7 @@
 import * as auth from "../../src/configs/auth-constant";
 import * as userService from "../../src/services/user-service";
 
-const password = process.env.PASSWORD || "password";
+const password = process.env.USER_DEFAULT_PASSWORD || "password";
 const passwordConfirm = password;
 
 export const initUserData = async () => {

@@ -20,7 +20,6 @@ const callback = () => {
   } catch (error) {
     console.error(error);
     logger.error(error);
-    process.exit();
   }
 
 })()

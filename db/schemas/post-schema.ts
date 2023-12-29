@@ -93,6 +93,9 @@ export const createPostSchema = async (db: Db) => {
                         },
                         "updatedAt": {
                             "bsonType": "date"
+                        },
+                        "viewed": {
+                            "bsonType": "int"
                         }
                     },
                     "required": ["slug", "tags", "createdAt", "createdBy", "title", "description", "content"]
