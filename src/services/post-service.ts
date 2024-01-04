@@ -5,7 +5,7 @@ import { PAGE_SIZE } from "../configs/pagination-constant";
 import { logger } from "../configs/winston";
 import { Create, Pageable, Update, WithAudit } from "../types/common-type";
 import { Post } from "../types/post-type";
-import * as counterService from "./counter-service"
+import * as counterService from "./counter-service";
 
 
 export const find = async (tag: string | null, keyword: string | null, page: number) => {

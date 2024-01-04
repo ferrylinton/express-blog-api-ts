@@ -1,7 +1,6 @@
 import { address } from 'ip';
 import app from './app';
 import { PORT } from './configs/env-constant';
-import redisClient from './configs/redis';
 import { logger } from './configs/winston';
 import { reload as reloadWhitelist } from './services/whitelist-service';
 
@@ -13,9 +12,7 @@ const callback = () => {
 (async () => {
 
   try {
-    await redisClient.connect();
     await reloadWhitelist();
-
     app.listen(parseInt(PORT), "0.0.0.0", callback);
   } catch (error) {
     console.error(error);

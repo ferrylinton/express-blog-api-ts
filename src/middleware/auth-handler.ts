@@ -3,7 +3,7 @@ import * as authService from '../services/auth-service';
 import * as redisService from '../services/redis-service';
 
 const PUBLIC_API_ALL_METHOD = ['/', '/auth/token']
-const PUBLIC_API_GET_METHOD = ['/api/images', '/api/posts', '/api/tags']
+const PUBLIC_API_GET_METHOD = ['/api/images', '/api/posts', '/api/tags', '/api/sitemaps']
 
 export const authHandler = async (req: Request, res: Response, next: NextFunction) => {
     if (PUBLIC_API_ALL_METHOD.includes(req.path) ||

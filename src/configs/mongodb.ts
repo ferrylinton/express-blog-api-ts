@@ -18,20 +18,41 @@ export const transactionOptions: TransactionOptions = {
     readPreference: 'primary'
 };
 
-const instance = new MongoClient(MONGODB_URL, mongoClientOptions);
+/**
+ * @type {Promise<MongoClient>}
+ */
+let mongoClient: Promise<MongoClient>;
 
-instance.on('connectionPoolCreated', (event) => logger.info(`[MONGODB] ${JSON.stringify(event)}`));
+const getMongoClientInstance = () => {
+    const instance = new MongoClient(MONGODB_URL, mongoClientOptions);
 
-instance.on('connectionPoolReady', (event) => logger.info(`[MONGODB] ${JSON.stringify(event)}`));
+    instance.on('connectionPoolCreated', (event) => logger.info(`[MONGODB] ${JSON.stringify(event)}`));
+    
+    instance.on('connectionPoolReady', (event) => logger.info(`[MONGODB] ${JSON.stringify(event)}`));
+    
+    instance.on('connectionCreated', (event) => logger.info(`[MONGODB] ${JSON.stringify(event)}`));
+    
+    instance.on('connectionClosed', (event) => logger.info(`[MONGODB] ${JSON.stringify(event)}`));
 
-instance.on('connectionCreated', (event) => logger.info(`[MONGODB] ${JSON.stringify(event)}`));
+    return instance;
+}
 
-instance.on('connectionClosed', (event) => logger.info(`[MONGODB] ${JSON.stringify(event)}`));
+export const getMongoClient = async () => {
+    if(mongoClient){
+        return mongoClient;
+    }else{
+        try {
+			mongoClient = getMongoClientInstance().connect();
+		} catch (error) {
+			console.log(error);
+		}
 
-export const mongoClient = instance.connect();
+		return mongoClient;
+    }
+};
 
 export const getDb = async () => {
-    const connection = await mongoClient;
+    const connection = await getMongoClient();
     return connection.db(MONGODB_DATABASE);
 }
 
