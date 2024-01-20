@@ -1,5 +1,5 @@
 import { MONGODB_DATABASE } from "../src/configs/env-constant";
-import { mongoClient } from "../src/configs/mongodb";
+import { getMongoClient } from "../src/configs/mongodb";
 import { AUTHORITY_COLLECTION } from "../src/configs/db-constant";
 import { IMAGE_FILES_CHUNKS, IMAGE_FILES_COLLECTION } from "../src/configs/db-constant";
 import { POST_COLLECTION } from "../src/configs/db-constant";
@@ -16,7 +16,7 @@ import { WHITELIST_COLLECTION } from "../src/configs/db-constant";
 
         // Create connection
 
-        const connection = await mongoClient;
+        const connection = await getMongoClient();
         const db = connection.db(MONGODB_DATABASE);
 
         // Get existing collections

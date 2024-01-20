@@ -18,7 +18,7 @@ export const createPostSchema = async (db: Db) => {
                         "slug": {
                             "bsonType": "string",
                             "minLength": 3,
-                            "maxLength": 30,
+                            "maxLength": 60,
                             "description": "Must be a string and unique"
                         },
                         "tags": {

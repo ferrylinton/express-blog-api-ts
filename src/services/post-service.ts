@@ -125,7 +125,7 @@ export const find = async (tag: string | null, keyword: string | null, page: num
 
 export const findLatest = async () => {
     const postCollection = await getCollection<WithAudit<Post>>(POST_COLLECTION);
-    const cursor = postCollection.find().sort({ createdDate: -1, slug: 1 }).limit(10);
+    const cursor = postCollection.find().sort({ updatedAt: -1, createdDate: -1, slug: 1 }).limit(10);
 
     const posts: Array<WithAudit<Post>> = [];
     

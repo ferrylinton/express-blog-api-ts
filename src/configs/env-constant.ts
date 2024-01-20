@@ -40,6 +40,9 @@ export const REDIS_URL = process.env.REDIS_URL;
 export const REDIS_SOCKET_PATH = process.env.REDIS_SOCKET_PATH;
 export const REDIS_PREFIX = process.env.REDIS_PREFIX || 'blogapi';
 
+export const RATE_LIMIT_MAX : number = parseInt(process.env.RATE_LIMIT_MAX || '1000');
+export const RATE_LIMIT_DURATION : number = parseInt(process.env.RATE_LIMIT_DURATION || '900000');
+
 export const LOG_CONSOLE = process.env.LOG_CONSOLE || 'debug';
 export const LOG_FILE = process.env.LOG_FILE || 'warn';
 export const LOG_REQUEST = process.env.LOG_REQUEST || 'debug';

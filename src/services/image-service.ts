@@ -1,6 +1,6 @@
 import sizeOf from 'image-size';
 import { GridFSBucket, ObjectId, UpdateResult } from "mongodb";
-import { PassThrough } from "stream";
+import { PassThrough, Readable, Stream } from "stream";
 import { IMAGE_FILES_COLLECTION } from "../configs/db-constant";
 import { IMAGE_BUCKET_NAME, IMAGE_MIME_TYPES } from "../configs/image-constant";
 import { getCollection, getDb } from "../configs/mongodb";
@@ -8,6 +8,7 @@ import { Pageable, WithAudit } from "../types/common-type";
 import { Image, MulterCallback } from "../types/image-type";
 import { PAGE_SIZE } from '../configs/pagination-constant';
 import { logger } from '../configs/winston';
+import sharp from 'sharp';
 
 let bucket: GridFSBucket;
 
@@ -130,46 +131,45 @@ export const findByFilename = async (filename: string): Promise<WithAudit<Image>
 }
 
 export const create = (bucket: GridFSBucket, createdBy: string, file: Express.Multer.File, callback: MulterCallback) => {
-    const arr = file.originalname.split('.');
-
     if (!IMAGE_MIME_TYPES.hasOwnProperty(file.mimetype)) {
         return callback(new Error('Wrong file type'));
     }
 
+    const arr = file.originalname.split('.');
+    const filename = `${arr.length > 0 ? `${arr[0]}.png` : 'unknown'}`;
+    const cursor = bucket.find({ filename });
 
-    const filename = `${arr.length > 0 ? arr[0] : 'unknown'}.${IMAGE_MIME_TYPES[file.mimetype as keyof typeof IMAGE_MIME_TYPES]}`;
-    const _id = new ObjectId();
-    const tunnel = new PassThrough();
-    let buffer = Array<any>();
-    tunnel.on("data", chunk => buffer.push(chunk));
-    tunnel.on("error", error => callback(error));
-    tunnel.on("end", () => {
-        const { width, height } = sizeOf(Buffer.concat(buffer));
-        setTimeout(() => {
-            updateDimension(_id, width || 0, height || 0)
-                .catch(error => logger.error(error.message));
-        }, 2000);
-    })
-
-    const metadata = {
-        createdBy,
-        originalName: file.originalname,
-        contentType: file.mimetype,
-        width: 0,
-        height: 0
-    }
-
-    const cursor = bucket.find({ filename, metadata });
     cursor.hasNext()
-        .then((isExist) => {
+        .then(async (isExist) => {
             if (isExist) {
                 return callback(new Error('Image is already exist'));
             } else {
-                file.stream.pipe(tunnel).pipe(bucket.openUploadStreamWithId(_id, filename, { metadata }))
-                    .on('error', function (error) {
-                        callback(error);
-                    }).on('finish', function () {
-                        callback(null, { filename, originalname: file.originalname });
+                const buffer = await stream2buffer(file.stream);
+                const { width } = await sharp(buffer).metadata();
+
+                sharp(buffer)
+                    .resize({
+                        width: width && width > 700 ? 700 : width
+                    })
+                    .png({ quality: 5 })
+                    .toBuffer((error, data, {width, height, size}) => {
+
+                        if (error) {
+                            callback(error);
+                        }
+
+                        Readable.from(data).pipe(bucket.openUploadStream(filename, { metadata: {
+                            createdBy,
+                            originalName: file.originalname,
+                            contentType: 'image/png',
+                            width,
+                            height
+                        } }))
+                            .on('error', function (error) {
+                                callback(error);
+                            }).on('finish', function () {
+                                callback(null, { filename, originalname: file.originalname, size });
+                            });
                     });
             }
         })
@@ -208,4 +208,17 @@ export const getImagesBucket = async () => {
     }
 
     return bucket;
+}
+
+async function stream2buffer(stream: Stream): Promise<Buffer> {
+
+    return new Promise<Buffer>((resolve, reject) => {
+
+        const _buf = Array<any>();
+
+        stream.on("data", chunk => _buf.push(chunk));
+        stream.on("end", () => resolve(Buffer.concat(_buf)));
+        stream.on("error", err => reject(`error converting stream - ${err}`));
+
+    });
 }

@@ -2,7 +2,7 @@ import { object, string } from 'zod';
 
 export const CreatePostSchema = object({
 
-    slug: string().min(3).max(100),
+    slug: string().min(3).max(60),
 
     title: object({
         id: string().min(3).max(150),
