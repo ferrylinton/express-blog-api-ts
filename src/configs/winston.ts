@@ -4,7 +4,9 @@ import { LOG_CONSOLE, LOG_FILE, LOG_REQUEST } from './env-constant';
 const { combine, timestamp, printf, errors } = format;
 
 const timestampFormat = timestamp({
-    format: 'YYYY-MM-DD.HH:mm:ss.SSS'
+    format: new Date().toLocaleString('id-ID', {
+        timeZone: 'Asia/Bangkok'
+    })
 });
 
 const requestFilter = format((info, opts) => {

@@ -34,6 +34,8 @@ const getMongoClientInstance = () => {
     
     instance.on('connectionClosed', (event) => logger.info(`[MONGODB] ${JSON.stringify(event)}`));
 
+    //instance.on('commandStarted', (event) => logger.info(`[MONGODB] ${JSON.stringify(event)}`));
+
     return instance;
 }
 
