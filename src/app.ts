@@ -15,8 +15,8 @@ const app: Express = express();
 
 app.set('trust proxy', 1);
 app.use(favicon(__dirname + '/public/favicon.ico'));
-app.use(rateLimitHandler);
 app.use(clientInfoHandler);
+app.use(rateLimitHandler);
 app.use(corsHandler);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));

@@ -4,16 +4,19 @@ import redisClient from '../configs/redis';
 import { RATE_LIMIT_DURATION, RATE_LIMIT_MAX } from '../configs/env-constant';
 
 
-export const rateLimitHandler =  rateLimit({
-    windowMs: RATE_LIMIT_DURATION, // 15 minutes
-    limit: RATE_LIMIT_MAX, // Limit each IP to 100 requests per `window` (here, per 15 minutes).
-    standardHeaders: 'draft-7', // draft-6: `RateLimit-*` headers; draft-7: combined `RateLimit` header
-    legacyHeaders: false, // Disable the `X-RateLimit-*` headers.
+export const rateLimitHandler = rateLimit({
+    windowMs: RATE_LIMIT_DURATION,
+    limit: RATE_LIMIT_MAX,
+    standardHeaders: 'draft-7',
+    legacyHeaders: false,
     message: { message: "Too many requests, please try again later." },
+    keyGenerator: (req, res) => {
+        return req.client.clientIp || req.ip
+    },
     store: new RedisStore({
         sendCommand: async (...args: string[]) => {
 
-            if(!redisClient.isOpen){
+            if (!redisClient.isOpen) {
                 await redisClient.connect();
             }
 

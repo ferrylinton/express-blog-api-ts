@@ -11,6 +11,6 @@ import { getAllFiles } from './file-util';
     } finally {
         setTimeout(function () {
             process.exit();
-        }, 5000);
+        }, 15000);
     }
 })()
